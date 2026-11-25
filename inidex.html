@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Area på rutnätet</title>
+  <style>
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-muted: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --border-strong: #94a3b8;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-soft: #dbeafe;
+      --success: #15803d;
+      --success-soft: #dcfce7;
+      --warning: #b45309;
+      --warning-soft: #fef3c7;
+      --danger: #b91c1c;
+      --danger-soft: #fee2e2;
+      --grid-dot: #334155;
+      --grid-line: #e2e8f0;
+      --shape-fill: rgba(37, 99, 235, 0.16);
+      --shape-stroke: #1d4ed8;
+      --helper-base: #059669;
+      --helper-height: #dc2626;
+      --helper-box: #d97706;
+      --helper-cut: rgba(239, 68, 68, 0.14);
+      --shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    body.dark {
+      --bg-page: #0b1120;
+      --bg-card: #1e293b;
+      --bg-subtle: #0f172a;
+      --bg-muted: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --border-strong: #475569;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-soft: rgba(59, 130, 246, 0.22);
+      --success: #4ade80;
+      --success-soft: rgba(34, 197, 94, 0.2);
+      --warning: #fbbf24;
+      --warning-soft: rgba(245, 158, 11, 0.22);
+      --danger: #f87171;
+      --danger-soft: rgba(239, 68, 68, 0.22);
+      --grid-dot: #cbd5e1;
+      --grid-line: #1e293b;
+      --shape-fill: rgba(96, 165, 250, 0.22);
+      --shape-stroke: #60a5fa;
+      --helper-base: #34d399;
+      --helper-height: #f87171;
+      --helper-box: #fbbf24;
+      --helper-cut: rgba(248, 113, 113, 0.2);
+      --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 18px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-variant-numeric: tabular-nums;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Compact Single-Row Top Header (48px) */
+    header {
+      height: 48px;
+      min-height: 48px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      z-index: 40;
+    }
+
+    .left-header-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.96rem;
+      white-space: nowrap;
+    }
+
+    .teacher-badge {
+      display: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--warning-soft);
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+    body.teacher-mode .teacher-badge {
+      display: inline-block;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .phase-tabs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tab-btn {
+      height: 36px;
+      padding: 0 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .tab-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .badge-count {
+      font-size: 0.78rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.25);
+      font-weight: 700;
+    }
+
+    .tab-btn.active .badge-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .tool-btn {
+      height: 36px;
+      padding: 0 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tool-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .tool-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    @keyframes pulseAmber {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); border-color: var(--border); }
+      50% { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.45); border-color: #f59e0b; background: var(--warning-soft); }
+    }
+
+    .pulse-amber {
+      animation: pulseAmber 0.9s ease-in-out 3;
+    }
+
+    /* Left-Anchored Skolverket Formelblad Ma 1a Popover */
+    .ref-dropdown {
+      position: fixed;
+      top: 54px;
+      left: 14px;
+      width: 34rem;
+      max-width: 94vw;
+      background: var(--bg-card);
+      border: 2px solid var(--border-strong);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      padding: 16px;
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.96rem;
+    }
+
+    .ref-dropdown.open {
+      display: flex;
+    }
+
+    .ref-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .ref-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .skolverket-sheet {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .sk-row {
+      display: grid;
+      grid-template-columns: 145px 1fr 110px;
+      align-items: center;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+      gap: 10px;
+    }
+
+    .sk-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .sk-formulas {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 1.08rem;
+      font-weight: 700;
+    }
+
+    .sk-note {
+      background: var(--warning-soft);
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .stacked-frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      line-height: 1.05;
+      font-weight: 700;
+      margin: 0 2px;
+    }
+
+    .stacked-frac .num {
+      border-bottom: 2px solid currentColor;
+      padding: 0 4px 2px;
+    }
+
+    .stacked-frac .den {
+      padding: 2px 4px 0;
+    }
+
+    /* Main Workspace Container */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      overflow: hidden;
+    }
+
+    .workspace-card {
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      max-height: 675px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 46% 54%;
+      overflow: hidden;
+    }
+
+    /* Left Visual Panel */
+    .visual-col {
+      background: var(--bg-subtle);
+      border-right: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .visual-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .visual-badge {
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .visual-badge.auto-opened {
+      background: var(--warning-soft);
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+
+    .scale-note {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    svg#gridSvg {
+      width: 100%;
+      height: 100%;
+      max-height: 455px;
+      display: block;
+    }
+
+    .visual-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .seg-group {
+      display: inline-flex;
+      background: var(--bg-muted);
+      padding: 3px;
+      border-radius: 8px;
+      gap: 3px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .seg-btn.active {
+      background: var(--bg-card);
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Right Interaction Column */
+    .work-col {
+      padding: 15px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 9px;
+      overflow-y: auto;
+    }
+
+    .prompt-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .task-kicker {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+    }
+
+    .task-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .task-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* Concept Explorer Controls & Table */
+    .concept-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      gap: 10px;
+    }
+
+    .control-row label {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .step-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .step-val {
+      min-width: 56px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .val-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .val-table th,
+    .val-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .val-table th {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-weight: 600;
+      width: 55%;
+    }
+
+    .val-table td {
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Guided & Challenge Phase Formula Cards & Gated Work Boxes */
+    .guided-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .step-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .formula-choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .f-choice {
+      padding: 8px 6px;
+      border-radius: 9px;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 76px;
+      gap: 4px;
+      line-height: 1.25;
+    }
+
+    .f-choice:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .f-choice.wrong {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .work-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+
+    .work-box.done-box {
+      border-color: var(--success);
+      background: var(--success-soft);
+      padding: 6px 12px;
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .input-label {
+      font-size: 1.18rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .math-input {
+      flex: 1;
+      height: 44px;
+      border-radius: 9px;
+      border: 2px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+      transition: border-color 0.15s;
+      min-width: 64px;
+    }
+
+    .math-input.compact-num {
+      flex: 0 0 110px;
+      width: 110px;
+      min-width: 110px;
+    }
+
+    .math-input.expr-left {
+      text-align: left;
+      padding: 0 12px;
+    }
+
+    .math-input:focus {
+      border-color: var(--primary);
+    }
+
+    .math-input.err-ring {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .unit-label {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .tri-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 10px;
+    }
+
+    .tri-cell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+      min-width: 0;
+    }
+
+    .tri-tag {
+      font-weight: 800;
+      font-size: 0.94rem;
+      color: var(--helper-height);
+      white-space: nowrap;
+    }
+
+    .tri-cell .math-input {
+      flex: 0 0 68px;
+      width: 68px;
+      min-width: 68px;
+      height: 36px;
+      padding: 0 4px;
+      font-size: 1.06rem;
+    }
+
+    .symbol-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .symbol-keys {
+      display: flex;
+      gap: 6px;
+    }
+
+    .sym-btn {
+      height: 36px;
+      min-width: 42px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .sym-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    /* Feedback & Milestone Banners */
+    .feedback-banner {
+      border-radius: 10px;
+      padding: 8px 13px;
+      font-size: 0.9rem;
+      line-height: 1.36;
+      font-weight: 600;
+      display: none;
+    }
+
+    .feedback-banner.show {
+      display: block;
+    }
+
+    .feedback-banner.error {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .feedback-banner.warn {
+      background: var(--warning-soft);
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+
+    .feedback-banner.success {
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .milestone-banner {
+      background: var(--primary-soft);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.92rem;
+    }
+
+    .milestone-banner.show {
+      display: flex;
+    }
+
+    .milestone-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Primary Action Footer */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      height: 44px;
+      padding: 0 22px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+    }
+
+    /* Full-Screen Lock Modal (> 3 consecutive mistakes) */
+    .lock-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.92);
+      color: #ffffff;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .lock-overlay.open {
+      display: flex;
+    }
+
+    .lock-card {
+      background: #1e293b;
+      border: 2px solid #f59e0b;
+      border-radius: 18px;
+      max-width: 520px;
+      width: 100%;
+      padding: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .lock-timer {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #fbbf24;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Compact Single-Row Header -->
+  <header>
+    <div class="left-header-group">
+      <div class="brand">
+        <span>Area på rutnätet</span>
+        <span class="teacher-badge" id="teacherBadge">Lärarläge</span>
+      </div>
+      <button class="tool-btn" id="refToggleBtn" onclick="toggleRefPanel()">
+        📐 Formelblad
+      </button>
+    </div>
+
+    <div class="header-controls">
+      <nav class="phase-tabs" aria-label="Faser">
+        <button class="tab-btn active" id="tab-concept" onclick="switchPhase('concept')">
+          Begrepp &amp; Modell
+        </button>
+        <button class="tab-btn" id="tab-guidad" onclick="switchPhase('guidad')">
+          <span id="icon-guidad"></span>1. Guidad <span class="badge-count" id="badge-guidad">0 / 4</span>
+        </button>
+        <button class="tab-btn" id="tab-direkt" onclick="switchPhase('direkt')" disabled>
+          <span id="icon-direkt">🔒 </span>2. Direkt <span class="badge-count" id="badge-direkt">0 / 4</span>
+        </button>
+        <button class="tab-btn" id="tab-utmaning" onclick="switchPhase('utmaning')" disabled>
+          <span id="icon-utmaning">🔒 </span>3. Utmaning <span class="badge-count" id="badge-utmaning">0 / 2</span>
+        </button>
+      </nav>
+
+      <button class="tool-btn" id="themeToggleBtn" onclick="toggleTheme()">
+        Mörkt läge
+      </button>
+    </div>
+  </header>
+
+  <!-- Left-Anchored Skolverket Formelblad Ma 1a Popover -->
+  <aside class="ref-dropdown" id="refPanel" aria-label="Formelblad Matematik 1a">
+    <div class="ref-header">
+      <h3>Formelblad – Matematik 1a (Geometri, Skolverket)</h3>
+      <button class="step-btn" onclick="toggleRefPanel()" aria-label="Stäng">✕</button>
+    </div>
+    <div class="skolverket-sheet">
+      <!-- Triangel -->
+      <div class="sk-row">
+        <div class="sk-name">Triangel</div>
+        <div class="sk-formulas">
+          <div>
+            <em>A</em> =
+            <span class="stacked-frac">
+              <span class="num"><em>bh</em></span>
+              <span class="den">2</span>
+            </span>
+          </div>
+        </div>
+        <svg viewBox="0 0 110 68" width="100" height="62">
+          <polygon points="12,56 98,56 68,12" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <line x1="68" y1="12" x2="68" y2="56" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+          <polyline points="68,49 75,49 75,56" fill="none" stroke="currentColor" stroke-width="1.3" />
+          <text x="55" y="66" text-anchor="middle" fill="currentColor" font-size="12" font-style="italic">b</text>
+          <text x="77" y="38" fill="currentColor" font-size="12" font-style="italic">h</text>
+        </svg>
+      </div>
+
+      <!-- Parallellogram / Rektangel -->
+      <div class="sk-row">
+        <div class="sk-name">Parallellogram<br><span style="font-weight:400;font-size:0.84rem;color:var(--text-muted);">(även rektangel)</span></div>
+        <div class="sk-formulas">
+          <div><em>A</em> = <em>bh</em></div>
+        </div>
+        <svg viewBox="0 0 110 68" width="100" height="62">
+          <polygon points="10,56 82,56 98,14 26,14" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <line x1="26" y1="14" x2="26" y2="56" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+          <polyline points="26,49 33,49 33,56" fill="none" stroke="currentColor" stroke-width="1.3" />
+          <text x="46" y="66" text-anchor="middle" fill="currentColor" font-size="12" font-style="italic">b</text>
+          <text x="34" y="38" fill="currentColor" font-size="12" font-style="italic">h</text>
+        </svg>
+      </div>
+
+      <!-- Cirkel -->
+      <div class="sk-row">
+        <div class="sk-name">Cirkel</div>
+        <div class="sk-formulas">
+          <div>
+            <em>A</em> = π<em>r</em>² =
+            <span class="stacked-frac">
+              <span class="num">π<em>d</em>²</span>
+              <span class="den">4</span>
+            </span>
+          </div>
+          <div>
+            <em>O</em> = 2π<em>r</em> = π<em>d</em>
+          </div>
+        </div>
+        <svg viewBox="0 0 110 74" width="100" height="68">
+          <circle cx="55" cy="37" r="28" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <line x1="27" y1="37" x2="83" y2="37" stroke="currentColor" stroke-width="1.3" />
+          <line x1="55" y1="37" x2="75" y2="17" stroke="currentColor" stroke-width="1.3" />
+          <circle cx="55" cy="37" r="2" fill="currentColor" />
+          <text x="41" y="33" text-anchor="middle" fill="currentColor" font-size="12" font-style="italic">d</text>
+          <text x="69" y="31" fill="currentColor" font-size="12" font-style="italic">r</text>
+        </svg>
+      </div>
+
+      <div class="sk-note">
+        <strong>Tips för snedställda figurer:</strong> Rama in figuren i en rektangel och subtrahera de yttre rätvinkliga trianglarna.
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Zero-Scroll Workspace -->
+  <main>
+    <div class="workspace-card" id="workspaceCard">
+      <!-- Left Column: Visual Grid Model -->
+      <section class="visual-col" id="visualCol">
+        <div class="visual-top-bar">
+          <span class="visual-badge" id="visualBadge">Interaktiv modell</span>
+          <span class="scale-note">Avstånd mellan punkter = 1 cm</span>
+        </div>
+
+        <div class="canvas-wrap">
+          <svg id="gridSvg" viewBox="0 0 480 420" role="img" aria-label="Rutnät med geometrisk figur"></svg>
+        </div>
+
+        <div class="visual-controls">
+          <div class="seg-group" id="animControls">
+            <button class="seg-btn active" id="btnFore" onclick="setVisualState('fore')">Före</button>
+            <button class="seg-btn" id="btnEfter" onclick="setVisualState('efter')">Efter</button>
+            <button class="seg-btn" onclick="replayAnim()">↻ Spela upp</button>
+          </div>
+          <button class="seg-btn" id="gridLinesToggle" onclick="toggleUnitGrid()" style="border: 1px solid var(--border); background: var(--bg-card);">
+            Rutnät: Av
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Column: Prompt, Gated Steps & Student Workspace -->
+      <section class="work-col" id="workCol">
+        <div class="prompt-box">
+          <div class="task-kicker" id="taskKicker">Begrepp &amp; Modell</div>
+          <h1 class="task-title" id="taskTitle">Utforska area på punktmönstret</h1>
+          <p class="task-desc" id="taskDesc">
+            Ändra figurens form, bas eller höjd. Dra i den markerade punkten eller växla mellan <strong>Före</strong> och <strong>Efter</strong>.
+          </p>
+        </div>
+
+        <!-- Concept Mode Interactive Controls -->
+        <div class="concept-controls" id="conceptArea">
+          <div class="control-row">
+            <label>Figurtyp</label>
+            <div class="seg-group">
+              <button class="seg-btn" id="cShape-rect" onclick="setConceptShape('rect')">Rektangel</button>
+              <button class="seg-btn active" id="cShape-para" onclick="setConceptShape('para')">Parallellogram</button>
+              <button class="seg-btn" id="cShape-tri" onclick="setConceptShape('tri')">Triangel</button>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <label>Bas (<em>b</em>)</label>
+            <div class="stepper">
+              <button class="step-btn" onclick="stepConcept('b', -1)">−</button>
+              <span class="step-val" id="cValB">4 cm</span>
+              <button class="step-btn" onclick="stepConcept('b', 1)">+</button>
+            </div>
+            <label>Höjd (<em>h</em>)</label>
+            <div class="stepper">
+              <button class="step-btn" onclick="stepConcept('h', -1)">−</button>
+              <span class="step-val" id="cValH">3 cm</span>
+              <button class="step-btn" onclick="stepConcept('h', 1)">+</button>
+            </div>
+          </div>
+
+          <table class="val-table">
+            <thead>
+              <tr>
+                <th>Storhet</th>
+                <th style="text-align:right;">Värde</th>
+              </tr>
+            </thead>
+            <tbody id="conceptTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Dynamic Guided / Direkt / Utmaning Workspace -->
+        <div id="dynamicPracticeZone" style="display:none; flex-direction:column; gap:8px;"></div>
+
+        <!-- Feedback & Milestone Area -->
+        <div style="display:flex; flex-direction:column; gap:7px;">
+          <div class="feedback-banner" id="feedbackBanner"></div>
+
+          <div class="milestone-banner" id="milestoneBanner">
+            <div id="milestoneText" style="font-weight:700;"></div>
+            <div class="milestone-actions">
+              <button class="btn-primary" id="nextPhaseBtn" onclick="advanceToNextPhase()">Gå till nästa fas</button>
+              <button class="btn-secondary" onclick="dismissMilestone()">Fortsätt träna här</button>
+            </div>
+          </div>
+
+          <div class="action-bar" id="actionBar">
+            <button class="btn-primary" id="primaryActionBtn" onclick="handlePrimaryAction()">
+              Starta 1. Guidad →
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 2-Minute Lock Modal after 4 Consecutive Mistakes -->
+  <div class="lock-overlay" id="lockOverlay" role="dialog" aria-modal="true">
+    <div class="lock-card">
+      <h2 style="font-size:1.4rem;">Paus – Räck upp handen</h2>
+      <p style="font-size:1rem; line-height:1.45; color:#e2e8f0;">
+        Du har svarat fel 4 gånger i rad. Räck upp handen och be din lärare om hjälp innan du fortsätter.
+      </p>
+      <div class="lock-timer" id="lockTimer">02:00</div>
+      <div>
+        <button class="btn-secondary" onclick="unlockScreen(true)">Lås upp (Lärare)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       STATE & CONFIGURATION
+       ========================================================================= */
+    const COLS = 8; // 8x7 dot grid -> 7x6 cm squares
+    const ROWS = 7;
+    const SPACING = 56;
+    const PAD_X = 44;
+    const PAD_Y = 42;
+
+    const SK_DIAG_TRI = `<svg viewBox="0 0 110 62" width="84" height="46">
+      <polygon points="12,50 98,50 68,10" fill="none" stroke="currentColor" stroke-width="1.8" />
+      <line x1="68" y1="10" x2="68" y2="50" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+      <polyline points="68,43 75,43 75,50" fill="none" stroke="currentColor" stroke-width="1.3" />
+      <text x="55" y="60" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">b</text>
+      <text x="77" y="34" fill="currentColor" font-size="11" font-style="italic">h</text>
+    </svg>`;
+
+    const SK_DIAG_PARA = `<svg viewBox="0 0 110 62" width="84" height="46">
+      <polygon points="10,50 82,50 98,10 26,10" fill="none" stroke="currentColor" stroke-width="1.8" />
+      <line x1="26" y1="10" x2="26" y2="50" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+      <polyline points="26,43 33,43 33,50" fill="none" stroke="currentColor" stroke-width="1.3" />
+      <text x="46" y="60" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">b</text>
+      <text x="34" y="34" fill="currentColor" font-size="11" font-style="italic">h</text>
+    </svg>`;
+
+    const SK_DIAG_BOX = `<svg viewBox="0 0 110 62" width="84" height="46">
+      <rect x="18" y="8" width="74" height="46" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 3" />
+      <polygon points="18,22 68,8 92,38 42,54" fill="none" stroke="currentColor" stroke-width="1.8" />
+    </svg>`;
+
+    const state = {
+      phase: 'concept', // 'concept' | 'guidad' | 'direkt' | 'utmaning'
+      teacherMode: false,
+      dark: false,
+      showUnitGrid: false,
+      visualState: 'fore',
+      animProgress: 0,
+      animRaf: null,
+
+      // Concept state
+      concept: {
+        shape: 'para',
+        b: 4,
+        h: 3,
+        skew: 1,
+        dragging: false
+      },
+
+      // Progression: 4 in Guidad, 4 in Direkt, 2 in Utmaning
+      scores: { guidad: 0, direkt: 0, utmaning: 0 },
+      targets: { guidad: 4, direkt: 4, utmaning: 2 },
+      unlocked: { guidad: true, direkt: false, utmaning: false },
+      milestoneShown: { guidad: false, direkt: false, utmaning: false },
+
+      // Structured decks
+      decks: { guidad: [], direkt: [], utmaning: [] },
+
+      // Current problem
+      currentProblem: null,
+      solvedCurrent: false,
+      visualAutoOpened: false,
+      lastFocusedInput: null,
+
+      // Guided phase sub-steps: 'formula' -> 'subst' -> 'calc'
+      guided: {
+        stage: 'formula',
+        formulaOptions: [],
+        selectedFormulaLabel: '',
+        substText: ''
+      },
+
+      // Utmaning phase sub-steps: 'frame' -> 'triangles' -> 'final'
+      challenge: {
+        stage: 'frame',
+        frameAreaInput: 0,
+        triInputs: []
+      },
+
+      consecutiveMistakes: 0,
+      lockInterval: null,
+      lockRemaining: 0
+    };
+
+    /* =========================================================================
+       CURATED WORKSHEET PROBLEM BANKS
+       ========================================================================= */
+    const STANDARD_SHAPES = {
+      rect: [
+        { subtype: 'rect', title: 'Rektangel (Uppgift 1)', pts: [[1,1],[5,1],[5,3],[1,3]], b: 4, h: 2, area: 8, baseEdge: [[1,3],[5,3]], heightSeg: [[5,1],[5,3]] },
+        { subtype: 'rect', title: 'Rektangel', pts: [[1,1],[6,1],[6,4],[1,4]], b: 5, h: 3, area: 15, baseEdge: [[1,4],[6,4]], heightSeg: [[6,1],[6,4]] },
+        { subtype: 'rect', title: 'Rektangel', pts: [[2,1],[5,1],[5,5],[2,5]], b: 3, h: 4, area: 12, baseEdge: [[2,5],[5,5]], heightSeg: [[5,1],[5,5]] }
+      ],
+      para: [
+        { subtype: 'para', title: 'Parallellogram (Uppgift 3)', pts: [[2,1],[5,1],[4,4],[1,4]], b: 3, h: 3, area: 9, baseEdge: [[1,4],[4,4]], heightSeg: [[2,1],[2,4]] },
+        { subtype: 'para', title: 'Parallellogram (Uppgift 4)', pts: [[1,1],[6,1],[7,3],[2,3]], b: 5, h: 2, area: 10, baseEdge: [[2,3],[7,3]], heightSeg: [[2,1],[2,3]] },
+        { subtype: 'para', title: 'Parallellogram', pts: [[3,1],[7,1],[5,4],[1,4]], b: 4, h: 3, area: 12, baseEdge: [[1,4],[5,4]], heightSeg: [[3,1],[3,4]] }
+      ],
+      tri_even: [
+        { subtype: 'tri_horiz', title: 'Triangel (Uppgift 2)', pts: [[2,1],[1,4],[5,4]], b: 4, h: 3, area: 6, baseEdge: [[1,4],[5,4]], heightSeg: [[2,1],[2,4]] },
+        { subtype: 'tri_horiz', title: 'Triangel', pts: [[3,1],[1,5],[6,5]], b: 5, h: 4, area: 10, baseEdge: [[1,5],[6,5]], heightSeg: [[3,1],[3,5]] },
+        { subtype: 'tri_vert', title: 'Triangel med lodrät bas', pts: [[6,1],[6,5],[2,3]], b: 4, h: 4, area: 8, baseEdge: [[6,1],[6,5]], heightSeg: [[2,3],[6,3]] }
+      ],
+      tri_odd: [
+        { subtype: 'tri_horiz', title: 'Triangel med udda produkt', pts: [[4,1],[1,4],[6,4]], b: 5, h: 3, area: 7.5, baseEdge: [[1,4],[6,4]], heightSeg: [[4,1],[4,4]] },
+        { subtype: 'tri_vert', title: 'Triangel med lodrät bas (Uppgift 5)', pts: [[1,1],[1,4],[6,3]], b: 3, h: 5, area: 7.5, baseEdge: [[1,1],[1,4]], heightSeg: [[1,3],[6,3]] },
+        { subtype: 'tri_horiz', title: 'Trubbig triangel', pts: [[6,1],[1,4],[4,4]], b: 3, h: 3, area: 4.5, baseEdge: [[1,4],[4,4]], heightSeg: [[6,1],[6,4]], extBase: [[4,4],[6,4]] },
+        { subtype: 'tri_vert', title: 'Triangel med lodrät bas', pts: [[1,1],[1,6],[4,4]], b: 5, h: 3, area: 7.5, baseEdge: [[1,1],[1,6]], heightSeg: [[1,4],[4,4]] }
+      ]
+    };
+
+    const CHALLENGE_SHAPES = {
+      tilted_tri: [
+        {
+          subtype: 'tilted_tri',
+          title: 'Snedställd triangel (Uppgift 7)',
+          pts: [[4,1],[5,5],[1,4]],
+          area: 7.5,
+          box: [1, 1, 5, 5],
+          boxArea: 16,
+          cuts: [
+            { label: 'T1', pts: [[1,1],[4,1],[1,4]], area: 4.5 },
+            { label: 'T2', pts: [[4,1],[5,1],[5,5]], area: 2 },
+            { label: 'T3', pts: [[1,4],[5,5],[1,5]], area: 2 }
+          ]
+        },
+        {
+          subtype: 'tilted_tri',
+          title: 'Snedställd triangel',
+          pts: [[1,1],[6,2],[3,5]],
+          area: 9,
+          box: [1, 1, 6, 5],
+          boxArea: 20,
+          cuts: [
+            { label: 'T1', pts: [[1,1],[6,1],[6,2]], area: 2.5 },
+            { label: 'T2', pts: [[6,2],[6,5],[3,5]], area: 4.5 },
+            { label: 'T3', pts: [[1,1],[3,5],[1,5]], area: 4 }
+          ]
+        }
+      ],
+      tilted_quad: [
+        {
+          subtype: 'tilted_quad',
+          title: 'Snedställd fyrhörning (Uppgift 8)',
+          pts: [[1,2],[5,1],[6,3],[3,5]],
+          area: 11,
+          box: [1, 1, 6, 5],
+          boxArea: 20,
+          cuts: [
+            { label: 'T1', pts: [[1,1],[5,1],[1,2]], area: 2 },
+            { label: 'T2', pts: [[5,1],[6,1],[6,3]], area: 1 },
+            { label: 'T3', pts: [[6,3],[6,5],[3,5]], area: 3 },
+            { label: 'T4', pts: [[1,2],[3,5],[1,5]], area: 3 }
+          ]
+        },
+        {
+          subtype: 'tilted_quad',
+          title: 'Snedställd kvadrat (Uppgift 6)',
+          pts: [[1,2],[5,1],[6,5],[2,6]],
+          area: 17,
+          box: [1, 1, 6, 6],
+          boxArea: 25,
+          cuts: [
+            { label: 'T1', pts: [[1,1],[5,1],[1,2]], area: 2 },
+            { label: 'T2', pts: [[5,1],[6,1],[6,5]], area: 2 },
+            { label: 'T3', pts: [[6,5],[6,6],[2,6]], area: 2 },
+            { label: 'T4', pts: [[1,2],[2,6],[1,6]], area: 2 }
+          ]
+        }
+      ]
+    };
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function buildDeckForPhase(phase) {
+      if (phase === 'guidad') {
+        const oddItems = [...STANDARD_SHAPES.tri_odd].sort(() => Math.random() - 0.5);
+        return [
+          pickRandom(STANDARD_SHAPES.rect),
+          pickRandom(STANDARD_SHAPES.tri_even),
+          pickRandom(STANDARD_SHAPES.para),
+          oddItems[0]
+        ];
+      }
+      if (phase === 'direkt') {
+        const firstThree = [
+          pickRandom(STANDARD_SHAPES.rect),
+          pickRandom(STANDARD_SHAPES.para),
+          pickRandom(STANDARD_SHAPES.tri_even)
+        ].sort(() => Math.random() - 0.5);
+        const oddTri = pickRandom(STANDARD_SHAPES.tri_odd);
+        return [...firstThree, oddTri];
+      }
+      return [
+        pickRandom(CHALLENGE_SHAPES.tilted_tri),
+        pickRandom(CHALLENGE_SHAPES.tilted_quad)
+      ];
+    }
+
+    function drawNextProblem(phase) {
+      if (state.decks[phase].length === 0) {
+        state.decks[phase] = buildDeckForPhase(phase);
+      }
+      return state.decks[phase].shift();
+    }
+
+    /* =========================================================================
+       MATH EXPRESSION EVALUATION & INPUT FORMATTING
+       ========================================================================= */
+    function formatSv(num) {
+      const rounded = Math.round(num * 100) / 100;
+      return String(rounded).replace('.', ',').replace('-', '−');
+    }
+
+    function evaluateDimensionExpr(raw) {
+      if (!raw || typeof raw !== 'string') return { status: 'empty' };
+      let s = raw.trim().toLowerCase();
+      if (!s) return { status: 'empty' };
+
+      s = s.replace(/^a\s*=\s*/i, '');
+      s = s.replace(/,/g, '.').replace(/[·×]/g, '*').replace(/÷/g, '/').replace(/\u2212/g, '-');
+      s = s.replace(/(\d)\(/g, '$1*(').replace(/\)(\d)/g, ')*$1');
+
+      if (!/^[0-9+\-*/().\s]+$/.test(s)) return { status: 'invalid' };
+      if (!/[+\-*/]/.test(s)) return { status: 'no_op' };
+
+      try {
+        const val = Function('"use strict"; return (' + s + ');')();
+        if (typeof val === 'number' && isFinite(val)) {
+          return { status: 'ok', value: val };
+        }
+        return { status: 'invalid' };
+      } catch (e) {
+        return { status: 'invalid' };
+      }
+    }
+
+    function parseAreaAnswer(raw) {
+      if (!raw || !raw.trim()) return { status: 'empty' };
+      let normalized = raw.trim().replace(/\u2212/g, '-').replace(/,/g, '.');
+
+      if (normalized.includes('=')) {
+        const parts = normalized.split('=');
+        if (parts.length !== 2) return { status: 'invalid' };
+        const lhs = parts[0].trim();
+        const rhs = parts[1].trim().replace(/\s+/g, '');
+        if (!/^a$/i.test(lhs)) return { status: 'bad_var' };
+        if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(rhs)) return { status: 'invalid' };
+        return { status: 'ok', value: parseFloat(rhs) };
+      }
+
+      const compact = normalized.replace(/\s+/g, '');
+      if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(compact)) return { status: 'invalid' };
+      return { status: 'ok', value: parseFloat(compact) };
+    }
+
+    function attachSmartAutoSpacing(el, allowExprOps = true) {
+      if (!el) return;
+      el.addEventListener('focus', () => {
+        state.lastFocusedInput = el;
+      });
+      if (!allowExprOps) return;
+
+      el.addEventListener('input', (e) => {
+        if (e.inputType && e.inputType.startsWith('delete')) return;
+        const cursor = el.selectionStart;
+        const before = el.value.slice(0, cursor);
+        const after = el.value.slice(cursor);
+
+        const formatChunk = (str) =>
+          str
+            .replace(/-/g, '−')
+            .replace(/\*/g, '·')
+            .replace(/\s*([=+−·/])\s*/g, ' $1 ')
+            .replace(/^\s+/, '');
+
+        const newBefore = formatChunk(before);
+        const newAfter = formatChunk(after);
+        const combined = (newBefore + newAfter).replace(/ {2,}/g, ' ');
+
+        if (combined !== el.value) {
+          el.value = combined;
+          const nextCursor = Math.min(newBefore.length, combined.length);
+          el.setSelectionRange(nextCursor, nextCursor);
+        }
+      });
+    }
+
+    function insertIntoActiveInput(ch) {
+      const el =
+        (state.lastFocusedInput && document.body.contains(state.lastFocusedInput) && !state.lastFocusedInput.disabled
+          ? state.lastFocusedInput
+          : null) ||
+        document.querySelector('#dynamicPracticeZone input:not([disabled])');
+      if (!el) return;
+      el.focus();
+      const start = el.selectionStart ?? el.value.length;
+      const end = el.selectionEnd ?? el.value.length;
+      el.value = el.value.slice(0, start) + ch + el.value.slice(end);
+      el.setSelectionRange(start + ch.length, start + ch.length);
+    }
+
+    /* =========================================================================
+       PHASE SWITCHING & UI SYNC
+       ========================================================================= */
+    function switchPhase(phase) {
+      if (phase === 'direkt' && !state.unlocked.direkt && !state.teacherMode) return;
+      if (phase === 'utmaning' && !state.unlocked.utmaning && !state.teacherMode) return;
+      state.phase = phase;
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${phase}`).classList.add('active');
+
+      const conceptArea = document.getElementById('conceptArea');
+      const practiceZone = document.getElementById('dynamicPracticeZone');
+
+      if (phase === 'concept') {
+        conceptArea.style.display = 'flex';
+        practiceZone.style.display = 'none';
+        document.getElementById('taskKicker').textContent = 'Begrepp & Modell';
+        document.getElementById('taskTitle').textContent = 'Utforska area på punktmönstret';
+        document.getElementById('taskDesc').innerHTML =
+          'Ändra figurens form, bas eller höjd. Dra i den markerade punkten eller växla mellan <strong>Före</strong> och <strong>Efter</strong>.';
+        document.getElementById('visualBadge').textContent = 'Interaktiv modell';
+        document.getElementById('visualBadge').classList.remove('auto-opened');
+        document.getElementById('primaryActionBtn').style.display = 'block';
+        document.getElementById('primaryActionBtn').textContent = 'Starta 1. Guidad →';
+        hideFeedback();
+        document.getElementById('milestoneBanner').classList.remove('show');
+        setVisualState('fore', true);
+        updateConceptTable();
+        renderSvg();
+      } else {
+        conceptArea.style.display = 'none';
+        practiceZone.style.display = 'flex';
+        loadNewProblem();
+      }
+    }
+
+    function loadNewProblem() {
+      const p = drawNextProblem(state.phase);
+      state.currentProblem = p;
+      state.solvedCurrent = false;
+      state.visualAutoOpened = false;
+      state.lastFocusedInput = null;
+
+      const badge = document.getElementById('visualBadge');
+      const phaseLabels = {
+        guidad: `1. Guidad (${state.scores.guidad} / ${state.targets.guidad})`,
+        direkt: `2. Direkt (${state.scores.direkt} / ${state.targets.direkt})`,
+        utmaning: `3. Utmaning (${state.scores.utmaning} / ${state.targets.utmaning})`
+      };
+      badge.textContent = state.phase === 'guidad' ? '1. Guidad' : (state.phase === 'direkt' ? '2. Direkt' : '3. Utmaning');
+      badge.classList.remove('auto-opened');
+
+      document.getElementById('taskKicker').textContent = phaseLabels[state.phase];
+      document.getElementById('taskTitle').textContent = p.title;
+
+      if (state.phase === 'guidad') {
+        document.getElementById('taskDesc').textContent =
+          'Välj rätt formel, sätt in figurens mått från rutnätet och beräkna arean.';
+      } else if (state.phase === 'direkt') {
+        document.getElementById('taskDesc').textContent =
+          'Beräkna figurens area med hjälp av punktmönstret.';
+      } else {
+        document.getElementById('taskDesc').textContent =
+          'Rama in figuren i en rektangel, beräkna de yttre trianglarnas areor och subtrahera dem från ramen.';
+      }
+
+      hideFeedback();
+      document.getElementById('milestoneBanner').classList.remove('show');
+      setVisualState('fore', true);
+
+      if (state.phase === 'guidad') {
+        initGuidedState(p);
+        renderGuidedWorkspace();
+      } else if (state.phase === 'direkt') {
+        renderDirectWorkspace();
+      } else {
+        initChallengeState(p);
+        renderChallengeWorkspace();
+      }
+      renderSvg();
+    }
+
+    function revealVisualManually() {
+      state.visualAutoOpened = true;
+      const badge = document.getElementById('visualBadge');
+      badge.textContent = 'Hjälpmedel (Figur)';
+      badge.classList.add('auto-opened');
+      setVisualState('efter', false);
+    }
+
+    /* =========================================================================
+       1. GUIDED PHASE WORKSPACE (Formula Gate -> Dimension Substitution -> Area)
+       ========================================================================= */
+    function initGuidedState(p) {
+      const isTri = p.subtype === 'tri_horiz' || p.subtype === 'tri_vert';
+      const options = [
+        {
+          id: 'rect_para',
+          label: 'A = bh',
+          html: `${SK_DIAG_PARA}<span><em>A</em> = <em>bh</em></span>`,
+          correct: !isTri
+        },
+        {
+          id: 'tri',
+          label: 'A = bh / 2',
+          html: `${SK_DIAG_TRI}<span><em>A</em> = <span class="stacked-frac"><span class="num"><em>bh</em></span><span class="den">2</span></span></span>`,
+          correct: isTri
+        },
+        {
+          id: 'box',
+          label: 'Inramning (Rektangel − trianglar)',
+          html: `${SK_DIAG_BOX}<span>Inramning</span>`,
+          correct: false
+        }
+      ].sort(() => Math.random() - 0.5);
+
+      state.guided = {
+        stage: 'formula',
+        formulaOptions: options,
+        selectedFormulaLabel: '',
+        substText: ''
+      };
+    }
+
+    function renderGuidedWorkspace() {
+      const zone = document.getElementById('dynamicPracticeZone');
+      const g = state.guided;
+      const p = state.currentProblem;
+      const primaryBtn = document.getElementById('primaryActionBtn');
+      const isTri = p.subtype === 'tri_horiz' || p.subtype === 'tri_vert';
+      const product = p.b * p.h;
+      const isOddTri = isTri && (product % 2 === 1);
+
+      let html = '<div class="guided-stack">';
+
+      if (g.stage === 'formula') {
+        html += `
+          <div>
+            <div class="step-label">Steg 1: Välj rätt formel i Formelbladet</div>
+            <div class="formula-choices" id="formulaChoices">
+              ${g.formulaOptions.map((opt, idx) => `
+                <button type="button" class="f-choice" data-idx="${idx}">${opt.html}</button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        primaryBtn.style.display = 'none';
+      } else {
+        html += `
+          <div class="work-box done-box">
+            ✓ Vald formel: <strong>${g.selectedFormulaLabel}</strong>
+          </div>
+        `;
+      }
+
+      if (g.stage === 'subst') {
+        html += `
+          <div class="work-box">
+            <div class="step-label">Steg 2: Läs av måtten i rutnätet och sätt in dem i formeln</div>
+            <div class="input-row">
+              <span class="input-label"><em>A</em> =</span>
+              <input
+                type="text"
+                id="substInput"
+                class="math-input expr-left"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Sätt in måtten i formeln"
+              />
+            </div>
+            <div class="symbol-bar">
+              <div class="symbol-keys">
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput(' · ')">·</button>
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput(' / ')">/</button>
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput('(')">(</button>
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput(')')">)</button>
+              </div>
+              <button type="button" class="tool-btn" onclick="revealVisualManually()">Visa figurhjälp</button>
+            </div>
+          </div>
+        `;
+        primaryBtn.style.display = 'block';
+        primaryBtn.textContent = 'Kontrollera insättning';
+      } else if (g.stage === 'calc') {
+        html += `
+          <div class="work-box done-box">
+            ✓ Insättning: <strong><em>A</em> = ${g.substText}</strong>
+          </div>
+        `;
+      }
+
+      if (g.stage === 'calc') {
+        const prefixPrompt = isOddTri
+          ? `<em>A</em> = <span class="stacked-frac"><span class="num">${product}</span><span class="den">2</span></span> =`
+          : `<em>A</em> =`;
+
+        html += `
+          <div class="work-box">
+            <div class="step-label">Steg 3: Beräkna figurens area</div>
+            <div class="input-row">
+              <span class="input-label">${prefixPrompt}</span>
+              <input
+                type="text"
+                id="areaInput"
+                class="math-input"
+                inputmode="decimal"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Skriv figurens area"
+              />
+              <span class="unit-label">cm²</span>
+            </div>
+            <div class="symbol-bar">
+              <div class="symbol-keys">
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput(',')">,</button>
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput('−')">−</button>
+              </div>
+              <button type="button" class="tool-btn" onclick="revealVisualManually()">Visa figurhjälp</button>
+            </div>
+          </div>
+        `;
+        primaryBtn.style.display = 'block';
+        primaryBtn.textContent = state.solvedCurrent ? 'Nästa uppgift →' : 'Rätta svar';
+      }
+
+      html += '</div>';
+      zone.innerHTML = html;
+
+      const choicesEl = document.getElementById('formulaChoices');
+      if (choicesEl) {
+        choicesEl.addEventListener('click', (e) => {
+          const btn = e.target.closest('.f-choice');
+          if (!btn) return;
+          const idx = Number(btn.dataset.idx);
+          const chosen = g.formulaOptions[idx];
+          if (chosen.correct) {
+            state.consecutiveMistakes = 0;
+            hideFeedback();
+            g.selectedFormulaLabel = chosen.label;
+            g.stage = 'subst';
+            renderGuidedWorkspace();
+          } else {
+            btn.classList.add('wrong');
+            btn.disabled = true;
+            pulseRefButton();
+            registerMistake();
+            showFeedback('error', 'Inte rätt formel. Öppna Formelblad uppe till vänster och jämför figurens form.');
+          }
+        });
+      }
+
+      const substEl = document.getElementById('substInput');
+      if (substEl) {
+        attachSmartAutoSpacing(substEl, true);
+        setTimeout(() => substEl.focus(), 20);
+      }
+
+      const areaEl = document.getElementById('areaInput');
+      if (areaEl) {
+        attachSmartAutoSpacing(areaEl, false);
+        if (!state.solvedCurrent) setTimeout(() => areaEl.focus(), 20);
+      }
+    }
+
+    /* =========================================================================
+       2. DIREKT PHASE WORKSPACE
+       ========================================================================= */
+    function renderDirectWorkspace() {
+      const zone = document.getElementById('dynamicPracticeZone');
+      const primaryBtn = document.getElementById('primaryActionBtn');
+      primaryBtn.style.display = 'block';
+      primaryBtn.textContent = state.solvedCurrent ? 'Nästa uppgift →' : 'Rätta svar';
+
+      zone.innerHTML = `
+        <div class="work-box">
+          <div class="input-row">
+            <span class="input-label"><em>A</em> =</span>
+            <input
+              type="text"
+              id="areaInput"
+              class="math-input"
+              inputmode="decimal"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Skriv figurens area"
+            />
+            <span class="unit-label">cm²</span>
+          </div>
+          <div class="symbol-bar">
+            <div class="symbol-keys">
+              <button type="button" class="sym-btn" onclick="insertIntoActiveInput(',')">,</button>
+              <button type="button" class="sym-btn" onclick="insertIntoActiveInput('−')">−</button>
+              <button type="button" class="sym-btn" onclick="insertIntoActiveInput(' = ')">=</button>
+              <button type="button" class="sym-btn" onclick="insertIntoActiveInput('A = ')">A =</button>
+            </div>
+            <button type="button" class="tool-btn" onclick="revealVisualManually()">Visa figurhjälp</button>
+          </div>
+        </div>
+      `;
+
+      const areaEl = document.getElementById('areaInput');
+      attachSmartAutoSpacing(areaEl, false);
+      setTimeout(() => areaEl.focus(), 20);
+    }
+
+    /* =========================================================================
+       3. UTMANING PHASE WORKSPACE (3-Step Gated: Frame -> Each Triangle -> Subtract)
+       ========================================================================= */
+    function initChallengeState(p) {
+      state.challenge = {
+        stage: 'frame', // 'frame' -> 'triangles' -> 'final'
+        frameAreaInput: 0,
+        triInputs: p.cuts.map(() => '')
+      };
+    }
+
+    function renderChallengeWorkspace() {
+      const zone = document.getElementById('dynamicPracticeZone');
+      const ch = state.challenge;
+      const p = state.currentProblem;
+      const primaryBtn = document.getElementById('primaryActionBtn');
+
+      let html = '<div class="guided-stack">';
+
+      // Steg 1: Enclosing Frame Area
+      if (ch.stage === 'frame') {
+        html += `
+          <div class="work-box">
+            <div class="step-label">Steg 1: Räkna ut den streckade ramens area</div>
+            <div class="input-row" style="justify-content:flex-start;">
+              <span class="input-label"><em>A</em><sub>ram</sub> =</span>
+              <input
+                type="text"
+                id="frameInput"
+                class="math-input compact-num"
+                inputmode="decimal"
+                maxlength="4"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Ramens area"
+              />
+              <span class="unit-label">cm²</span>
+            </div>
+          </div>
+        `;
+        primaryBtn.style.display = 'block';
+        primaryBtn.textContent = 'Kontrollera ramens area';
+      } else {
+        html += `
+          <div class="work-box done-box">
+            ✓ Steg 1 – Ramens area: <strong><em>A</em><sub>ram</sub> = ${formatSv(p.boxArea)} cm²</strong>
+          </div>
+        `;
+      }
+
+      // Steg 2: Surrounding Right Triangles (Compact 2-digit inputs)
+      if (ch.stage === 'triangles') {
+        html += `
+          <div class="work-box">
+            <div class="step-label">Steg 2: Beräkna arean av varje yttre triangel</div>
+            <div class="tri-grid">
+              ${p.cuts.map((cut, idx) => `
+                <div class="tri-cell">
+                  <span class="tri-tag">${cut.label} =</span>
+                  <input
+                    type="text"
+                    id="triInput-${idx}"
+                    class="math-input"
+                    inputmode="decimal"
+                    maxlength="4"
+                    autocomplete="off"
+                    spellcheck="false"
+                    value="${ch.triInputs[idx] || ''}"
+                    aria-label="Area för ${cut.label}"
+                  />
+                  <span class="unit-label" style="font-size:0.9rem;">cm²</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="symbol-bar">
+              <div class="symbol-keys">
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput(',')">,</button>
+              </div>
+              <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Tips: Använd <em>A</em> = <em>bh</em> / 2 för varje triangel</span>
+            </div>
+          </div>
+        `;
+        primaryBtn.style.display = 'block';
+        primaryBtn.textContent = 'Kontrollera trianglarna';
+      } else if (ch.stage === 'final') {
+        const triSummary = p.cuts.map(c => `${c.label} = ${formatSv(c.area)} cm²`).join(', ');
+        html += `
+          <div class="work-box done-box">
+            ✓ Steg 2 – Yttre trianglar: <strong>${triSummary}</strong>
+          </div>
+        `;
+      }
+
+      // Steg 3: Final Subtraction (Frame minus surrounding triangles)
+      if (ch.stage === 'final') {
+        html += `
+          <div class="work-box">
+            <div class="step-label">Steg 3: Subtrahera trianglarna från ramens area</div>
+            <div class="input-row" style="justify-content:flex-start;">
+              <span class="input-label"><em>A</em><sub>figur</sub> =</span>
+              <input
+                type="text"
+                id="areaInput"
+                class="math-input compact-num"
+                inputmode="decimal"
+                maxlength="5"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Figurens area"
+              />
+              <span class="unit-label">cm²</span>
+            </div>
+            <div class="symbol-bar">
+              <div class="symbol-keys">
+                <button type="button" class="sym-btn" onclick="insertIntoActiveInput(',')">,</button>
+              </div>
+            </div>
+          </div>
+        `;
+        primaryBtn.style.display = 'block';
+        primaryBtn.textContent = state.solvedCurrent ? 'Nästa uppgift →' : 'Rätta svar';
+      }
+
+      html += '</div>';
+      zone.innerHTML = html;
+
+      if (ch.stage === 'frame') {
+        const frameEl = document.getElementById('frameInput');
+        attachSmartAutoSpacing(frameEl, false);
+        setTimeout(() => frameEl.focus(), 20);
+      } else if (ch.stage === 'triangles') {
+        p.cuts.forEach((_, idx) => {
+          const tEl = document.getElementById(`triInput-${idx}`);
+          attachSmartAutoSpacing(tEl, false);
+          if (idx === 0) setTimeout(() => tEl.focus(), 20);
+        });
+      } else if (ch.stage === 'final') {
+        const areaEl = document.getElementById('areaInput');
+        attachSmartAutoSpacing(areaEl, false);
+        if (!state.solvedCurrent) setTimeout(() => areaEl.focus(), 20);
+      }
+    }
+
+    /* =========================================================================
+       CONCEPT MODE LOGIC
+       ========================================================================= */
+    function setConceptShape(shape) {
+      state.concept.shape = shape;
+      ['rect', 'para', 'tri'].forEach(s => {
+        document.getElementById(`cShape-${s}`).classList.toggle('active', s === shape);
+      });
+      setVisualState('fore', true);
+      updateConceptTable();
+      renderSvg();
+    }
+
+    function stepConcept(key, delta) {
+      if (key === 'b') {
+        state.concept.b = Math.max(2, Math.min(6, state.concept.b + delta));
+      } else if (key === 'h') {
+        state.concept.h = Math.max(2, Math.min(5, state.concept.h + delta));
+      }
+      updateConceptTable();
+      renderSvg();
+    }
+
+    function updateConceptTable() {
+      const { shape, b, h } = state.concept;
+      document.getElementById('cValB').textContent = `${b} cm`;
+      document.getElementById('cValH').textContent = `${h} cm`;
+
+      const bh = b * h;
+      const area = shape === 'tri' ? bh / 2 : bh;
+
+      let formulaHtml = '<em>A</em> = <em>bh</em>';
+      if (shape === 'tri') {
+        formulaHtml = `<em>A</em> = <span class="stacked-frac"><span class="num"><em>bh</em></span><span class="den">2</span></span>`;
+      }
+
+      document.getElementById('conceptTableBody').innerHTML = `
+        <tr><th>Bas (<em>b</em>)</th><td>${b} cm</td></tr>
+        <tr><th>Höjd (<em>h</em>)</th><td>${h} cm</td></tr>
+        <tr><th>Formel</th><td>${formulaHtml}</td></tr>
+        <tr><th>Produkten <em>b</em> · <em>h</em></th><td>${b} · ${h} = ${bh} cm²</td></tr>
+        <tr><th>Area (<em>A</em>)</th><td style="color:var(--primary); font-size:1.05rem;">${formatSv(area)} cm²</td></tr>
+      `;
+    }
+
+    /* =========================================================================
+       VISUAL STATE ANIMATION (FÖRE / EFTER)
+       ========================================================================= */
+    function setVisualState(target, instant = false) {
+      state.visualState = target;
+      document.getElementById('btnFore').classList.toggle('active', target === 'fore');
+      document.getElementById('btnEfter').classList.toggle('active', target === 'efter');
+
+      if (state.animRaf) cancelAnimationFrame(state.animRaf);
+      const goal = target === 'efter' ? 1 : 0;
+
+      if (instant) {
+        state.animProgress = goal;
+        renderSvg();
+        return;
+      }
+
+      const step = () => {
+        const diff = goal - state.animProgress;
+        if (Math.abs(diff) < 0.03) {
+          state.animProgress = goal;
+          renderSvg();
+          return;
+        }
+        state.animProgress += diff * 0.16;
+        renderSvg();
+        state.animRaf = requestAnimationFrame(step);
+      };
+      state.animRaf = requestAnimationFrame(step);
+    }
+
+    function replayAnim() {
+      setVisualState('fore', true);
+      setTimeout(() => setVisualState('efter', false), 60);
+    }
+
+    function toggleUnitGrid() {
+      state.showUnitGrid = !state.showUnitGrid;
+      document.getElementById('gridLinesToggle').textContent =
+        state.showUnitGrid ? 'Rutnät: På' : 'Rutnät: Av';
+      renderSvg();
+    }
+
+    /* =========================================================================
+       SVG RENDERING ENGINE (15px BOLD LABELS)
+       ========================================================================= */
+    function gx(col) { return PAD_X + col * SPACING; }
+    function gy(row) { return PAD_Y + row * SPACING; }
+
+    function ptsToAttr(pts) {
+      return pts.map(([c, r]) => `${gx(c)},${gy(r)}`).join(' ');
+    }
+
+    function renderSvg() {
+      const svg = document.getElementById('gridSvg');
+      let out = '';
+
+      if (state.showUnitGrid) {
+        for (let c = 0; c < COLS; c++) {
+          out += `<line x1="${gx(c)}" y1="${gy(0)}" x2="${gx(c)}" y2="${gy(ROWS - 1)}" stroke="var(--grid-line)" stroke-width="1.5" />`;
+        }
+        for (let r = 0; r < ROWS; r++) {
+          out += `<line x1="${gx(0)}" y1="${gy(r)}" x2="${gx(COLS - 1)}" y2="${gy(r)}" stroke="var(--grid-line)" stroke-width="1.5" />`;
+        }
+      }
+
+      const t = state.animProgress;
+
+      if (state.phase === 'concept') {
+        const { shape, b, h, skew } = state.concept;
+        const x0 = 1;
+        const yBottom = 5;
+        const yTop = yBottom - h;
+
+        if (shape === 'rect') {
+          const pts = [[x0, yTop], [x0 + b, yTop], [x0 + b, yBottom], [x0, yBottom]];
+          out += `<polygon points="${ptsToAttr(pts)}" fill="var(--shape-fill)" stroke="var(--shape-stroke)" stroke-width="3" />`;
+          if (t > 0.05) {
+            out += renderBaseHeight(gx(x0), gy(yBottom), gx(x0 + b), gy(yBottom), gx(x0 + b), gy(yTop), gx(x0 + b), gy(yBottom), b, h, t);
+          }
+        } else if (shape === 'para') {
+          const curSkew = skew * (1 - t);
+          const pts = [
+            [x0 + curSkew, yTop],
+            [x0 + curSkew + b, yTop],
+            [x0 + b, yBottom],
+            [x0, yBottom]
+          ];
+          if (t > 0.02) {
+            const origPts = [[x0 + skew, yTop], [x0 + skew + b, yTop], [x0 + b, yBottom], [x0, yBottom]];
+            out += `<polygon points="${ptsToAttr(origPts)}" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="5,5" opacity="${0.6 * t}" />`;
+          }
+          out += `<polygon points="${ptsToAttr(pts)}" fill="var(--shape-fill)" stroke="var(--shape-stroke)" stroke-width="3" />`;
+          out += renderBaseHeight(gx(x0), gy(yBottom), gx(x0 + b), gy(yBottom), gx(x0 + curSkew), gy(yTop), gx(x0 + curSkew), gy(yBottom), b, h, 1);
+
+          const hx = gx(x0 + curSkew);
+          const hy = gy(yTop);
+          out += `<circle cx="${hx}" cy="${hy}" r="9" fill="var(--primary)" stroke="#ffffff" stroke-width="2.5" style="cursor:ew-resize;" data-drag="true" />`;
+        } else if (shape === 'tri') {
+          const apexX = x0 + skew;
+          const pts = [[apexX, yTop], [x0, yBottom], [x0 + b, yBottom]];
+          if (t > 0.02) {
+            const rectPts = [[x0, yTop], [x0 + b, yTop], [x0 + b, yBottom], [x0, yBottom]];
+            out += `<polygon points="${ptsToAttr(rectPts)}" fill="var(--helper-cut)" stroke="var(--helper-box)" stroke-width="2" stroke-dasharray="6,4" opacity="${t}" />`;
+          }
+          out += `<polygon points="${ptsToAttr(pts)}" fill="var(--shape-fill)" stroke="var(--shape-stroke)" stroke-width="3" />`;
+          out += renderBaseHeight(gx(x0), gy(yBottom), gx(x0 + b), gy(yBottom), gx(apexX), gy(yTop), gx(apexX), gy(yBottom), b, h, 1);
+
+          const hx = gx(apexX);
+          const hy = gy(yTop);
+          out += `<circle cx="${hx}" cy="${hy}" r="9" fill="var(--primary)" stroke="#ffffff" stroke-width="2.5" style="cursor:ew-resize;" data-drag="true" />`;
+        }
+      } else if (state.currentProblem) {
+        const p = state.currentProblem;
+        out += `<polygon points="${ptsToAttr(p.pts)}" fill="var(--shape-fill)" stroke="var(--shape-stroke)" stroke-width="3" stroke-linejoin="round" />`;
+
+        if (state.phase === 'guidad' || state.phase === 'direkt') {
+          const showHelpers = state.visualAutoOpened || t > 0.02;
+          const alpha = state.visualAutoOpened ? Math.max(0.85, t) : t;
+          if (showHelpers) {
+            if (p.extBase) {
+              out += `<line x1="${gx(p.extBase[0][0])}" y1="${gy(p.extBase[0][1])}" x2="${gx(p.extBase[1][0])}" y2="${gy(p.extBase[1][1])}" stroke="var(--helper-base)" stroke-width="2.5" stroke-dasharray="5,4" opacity="${alpha}" />`;
+            }
+            const [b1, b2] = p.baseEdge;
+            const [h1, h2] = p.heightSeg;
+            out += renderBaseHeight(gx(b1[0]), gy(b1[1]), gx(b2[0]), gy(b2[1]), gx(h1[0]), gy(h1[1]), gx(h2[0]), gy(h2[1]), p.b, p.h, alpha);
+          }
+        } else if (state.phase === 'utmaning' && p.box) {
+          const [x1, y1, x2, y2] = p.box;
+          const bw = x2 - x1;
+          const bh = y2 - y1;
+          out += `<rect x="${gx(x1)}" y="${gy(y1)}" width="${bw * SPACING}" height="${bh * SPACING}" fill="none" stroke="var(--helper-box)" stroke-width="2.5" stroke-dasharray="7,5" />`;
+
+          const chStage = state.challenge.stage;
+          if (chStage === 'triangles' || chStage === 'final' || state.solvedCurrent) {
+            p.cuts.forEach(cut => {
+              out += `<polygon points="${ptsToAttr(cut.pts)}" fill="var(--helper-cut)" stroke="var(--helper-height)" stroke-width="1.5" stroke-dasharray="4,3" />`;
+              const cx = (cut.pts[0][0] + cut.pts[1][0] + cut.pts[2][0]) / 3;
+              const cy = (cut.pts[0][1] + cut.pts[1][1] + cut.pts[2][1]) / 3;
+              const tagText = (chStage === 'final' || state.solvedCurrent)
+                ? `${cut.label} (${formatSv(cut.area)})`
+                : cut.label;
+              out += `<text x="${gx(cx)}" y="${gy(cy) + 5}" text-anchor="middle" fill="var(--helper-height)" font-size="15" font-weight="800">${tagText}</text>`;
+            });
+          }
+        }
+      }
+
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          out += `<circle cx="${gx(c)}" cy="${gy(r)}" r="3.4" fill="var(--grid-dot)" />`;
+        }
+      }
+
+      svg.innerHTML = out;
+    }
+
+    function renderBaseHeight(bx1, by1, bx2, by2, hx1, hy1, hx2, hy2, bVal, hVal, alpha) {
+      let s = `<g opacity="${alpha}">`;
+      s += `<line x1="${bx1}" y1="${by1}" x2="${bx2}" y2="${by2}" stroke="var(--helper-base)" stroke-width="4" />`;
+      const bMidX = (bx1 + bx2) / 2;
+      const bMidY = (by1 + by2) / 2;
+      const isVertBase = Math.abs(bx1 - bx2) < 2;
+      s += `<text x="${isVertBase ? bMidX - 24 : bMidX}" y="${isVertBase ? bMidY + 5 : bMidY + 22}" text-anchor="middle" fill="var(--helper-base)" font-size="15" font-weight="700">b = ${bVal}</text>`;
+
+      s += `<line x1="${hx1}" y1="${hy1}" x2="${hx2}" y2="${hy2}" stroke="var(--helper-height)" stroke-width="3" stroke-dasharray="6,4" />`;
+      const hMidX = (hx1 + hx2) / 2;
+      const hMidY = (hy1 + hy2) / 2;
+      s += `<text x="${isVertBase ? hMidX : hMidX + 24}" y="${isVertBase ? hMidY - 10 : hMidY + 5}" text-anchor="middle" fill="var(--helper-height)" font-size="15" font-weight="700">h = ${hVal}</text>`;
+      s += `</g>`;
+      return s;
+    }
+
+    const gridSvg = document.getElementById('gridSvg');
+    gridSvg.addEventListener('pointerdown', (e) => {
+      if (state.phase === 'concept' && e.target.dataset.drag) {
+        state.concept.dragging = true;
+        gridSvg.setPointerCapture(e.pointerId);
+      }
+    });
+    gridSvg.addEventListener('pointermove', (e) => {
+      if (!state.concept.dragging) return;
+      const rect = gridSvg.getBoundingClientRect();
+      const svgX = ((e.clientX - rect.left) / rect.width) * 480;
+      const col = Math.round((svgX - PAD_X) / SPACING);
+      const clampedCol = Math.max(0, Math.min(COLS - 1 - state.concept.b, col));
+      state.concept.skew = clampedCol - 1;
+      setVisualState('fore', true);
+      renderSvg();
+    });
+    gridSvg.addEventListener('pointerup', () => {
+      state.concept.dragging = false;
+    });
+
+    /* =========================================================================
+       ANSWER EVALUATION & LAYERED DIAGNOSTIC FEEDBACK
+       ========================================================================= */
+    function handlePrimaryAction() {
+      if (state.phase === 'concept') {
+        switchPhase('guidad');
+        return;
+      }
+      if (state.solvedCurrent) {
+        loadNewProblem();
+        return;
+      }
+      if (state.phase === 'guidad' && state.guided.stage === 'subst') {
+        checkGuidedSubstitution();
+        return;
+      }
+      if (state.phase === 'utmaning') {
+        if (state.challenge.stage === 'frame') {
+          checkChallengeFrame();
+          return;
+        }
+        if (state.challenge.stage === 'triangles') {
+          checkChallengeTriangles();
+          return;
+        }
+      }
+      checkFinalAreaAnswer();
+    }
+
+    function checkGuidedSubstitution() {
+      const substEl = document.getElementById('substInput');
+      if (!substEl) return;
+      const res = evaluateDimensionExpr(substEl.value);
+      const p = state.currentProblem;
+      const isTri = p.subtype === 'tri_horiz' || p.subtype === 'tri_vert';
+
+      if (res.status === 'empty') {
+        showFeedback('warn', 'Skriv in uträkningen med måtten från rutnätet.');
+        substEl.focus();
+        return;
+      }
+      if (res.status === 'no_op') {
+        showFeedback('warn', 'Visa hur du räknar med måtten i formeln (använd · eller /).');
+        substEl.focus();
+        return;
+      }
+      if (res.status === 'invalid') {
+        showFeedback('warn', 'Kontrollera tecknen i ditt uttryck (använd siffror, ·, / och parenteser).');
+        substEl.focus();
+        return;
+      }
+
+      if (Math.abs(res.value - p.area) < 0.01) {
+        state.consecutiveMistakes = 0;
+        hideFeedback();
+        state.guided.substText = substEl.value.trim();
+        state.guided.stage = 'calc';
+        renderGuidedWorkspace();
+        return;
+      }
+
+      registerMistake();
+      if (isTri && Math.abs(res.value - p.b * p.h) < 0.01) {
+        showFeedback('error', 'Du har satt in b · h, men glöm inte att dividera med 2 i triangelns formel.');
+      } else {
+        showFeedback('error', 'Inte riktigt. Räkna prickavstånden för basen (b) och höjden (h) i figuren och sätt in dem i formeln.');
+      }
+      substEl.focus();
+      substEl.select();
+    }
+
+    function checkChallengeFrame() {
+      const frameEl = document.getElementById('frameInput');
+      if (!frameEl) return;
+      const parsed = parseAreaAnswer(frameEl.value);
+      const p = state.currentProblem;
+
+      if (parsed.status === 'empty') {
+        showFeedback('warn', 'Skriv in den streckade ramens area.');
+        frameEl.focus();
+        return;
+      }
+      if (parsed.status !== 'ok') {
+        showFeedback('warn', 'Använd bara siffror (till exempel 16).');
+        frameEl.focus();
+        return;
+      }
+
+      if (Math.abs(parsed.value - p.boxArea) < 0.01) {
+        state.consecutiveMistakes = 0;
+        hideFeedback();
+        state.challenge.stage = 'triangles';
+        renderChallengeWorkspace();
+        renderSvg();
+        return;
+      }
+
+      registerMistake();
+      const bw = p.box[2] - p.box[0];
+      const bh = p.box[3] - p.box[1];
+      if (Math.abs(parsed.value - 2 * (bw + bh)) < 0.01) {
+        showFeedback('error', 'Det där är ramens omkrets. Multiplicera basen med höjden för att få ramens area.');
+      } else {
+        showFeedback('error', 'Inte riktigt. Räkna hur många prickavstånd bred och hög den streckade ramen är och multiplicera dem.');
+      }
+      frameEl.focus();
+      frameEl.select();
+    }
+
+    function checkChallengeTriangles() {
+      const p = state.currentProblem;
+      let allFilled = true;
+      let allValid = true;
+      let allCorrect = true;
+      let firstWrongEl = null;
+
+      p.cuts.forEach((cut, idx) => {
+        const el = document.getElementById(`triInput-${idx}`);
+        state.challenge.triInputs[idx] = el.value;
+        el.classList.remove('err-ring');
+
+        const parsed = parseAreaAnswer(el.value);
+        if (parsed.status === 'empty') {
+          allFilled = false;
+          el.classList.add('err-ring');
+          if (!firstWrongEl) firstWrongEl = el;
+        } else if (parsed.status !== 'ok') {
+          allValid = false;
+          el.classList.add('err-ring');
+          if (!firstWrongEl) firstWrongEl = el;
+        } else if (Math.abs(parsed.value - cut.area) >= 0.01) {
+          allCorrect = false;
+          el.classList.add('err-ring');
+          if (!firstWrongEl) firstWrongEl = el;
+        }
+      });
+
+      if (!allFilled) {
+        showFeedback('warn', 'Fyll i arean för alla yttre trianglar innan du rättar.');
+        if (firstWrongEl) firstWrongEl.focus();
+        return;
+      }
+      if (!allValid) {
+        showFeedback('warn', 'Använd bara siffror och kommatecken (till exempel 4,5).');
+        if (firstWrongEl) firstWrongEl.focus();
+        return;
+      }
+
+      if (allCorrect) {
+        state.consecutiveMistakes = 0;
+        hideFeedback();
+        state.challenge.stage = 'final';
+        renderChallengeWorkspace();
+        renderSvg();
+        return;
+      }
+
+      registerMistake();
+      showFeedback('error', 'Kontrollera de rödmarkerade trianglarna. Använd A = b · h / 2 för varje rätvinklig triangel (glöm inte att dela med 2).');
+      if (firstWrongEl) {
+        firstWrongEl.focus();
+        firstWrongEl.select();
+      }
+    }
+
+    function checkFinalAreaAnswer() {
+      const areaEl = document.getElementById('areaInput');
+      if (!areaEl) return;
+      const parsed = parseAreaAnswer(areaEl.value);
+
+      if (parsed.status === 'empty') {
+        showFeedback('warn', 'Skriv ett tal i rutan innan du rättar.');
+        areaEl.focus();
+        return;
+      }
+      if (parsed.status === 'bad_var') {
+        showFeedback('warn', 'Skriv endast värdet eller börja med A = (till exempel 8 eller A = 8).');
+        areaEl.focus();
+        return;
+      }
+      if (parsed.status === 'invalid') {
+        showFeedback('warn', 'Använd bara siffror och kommatecken (till exempel 7,5).');
+        areaEl.focus();
+        return;
+      }
+
+      const val = parsed.value;
+      const p = state.currentProblem;
+      const isCorrect = Math.abs(val - p.area) < 0.01;
+
+      if (isCorrect) {
+        state.consecutiveMistakes = 0;
+        state.solvedCurrent = true;
+        areaEl.disabled = true;
+
+        setVisualState('efter', false);
+
+        state.scores[state.phase]++;
+        updateBadges();
+
+        showFeedback('success', `Rätt! Arean är A = ${formatSv(p.area)} cm².`);
+        document.getElementById('primaryActionBtn').textContent = 'Nästa uppgift →';
+
+        if (state.scores[state.phase] >= state.targets[state.phase] && !state.milestoneShown[state.phase]) {
+          state.milestoneShown[state.phase] = true;
+          triggerMilestone();
+        }
+        return;
+      }
+
+      registerMistake();
+
+      if (!state.visualAutoOpened && state.phase !== 'utmaning') {
+        state.visualAutoOpened = true;
+        const badge = document.getElementById('visualBadge');
+        badge.textContent = 'Hjälpmedel (Figur)';
+        badge.classList.add('auto-opened');
+        renderSvg();
+      }
+
+      if (state.phase === 'guidad' || state.phase === 'direkt') {
+        const isTri = p.subtype === 'tri_horiz' || p.subtype === 'tri_vert';
+        const prod = p.b * p.h;
+        if (isTri && Math.abs(val - prod) < 0.01) {
+          showFeedback('error', `Du har beräknat b · h = ${p.b} · ${p.h} = ${prod}. Glöm inte att dividera med 2 för en triangel!`);
+        } else if (isTri && prod % 2 === 1 && (Math.abs(val - Math.floor(p.area)) < 0.01 || Math.abs(val - Math.ceil(p.area)) < 0.01)) {
+          const evenBelow = prod - 1;
+          showFeedback('error', `${prod} är ett udda tal. Hälften av ${evenBelow} är ${evenBelow / 2}, och hälften av 1 är 0,5. Vad blir ${prod} / 2?`);
+        } else if (Math.abs(val - 2 * (p.b + p.h)) < 0.01) {
+          showFeedback('error', 'Det ser ut som att du har beräknat omkretsen i stället för arean.');
+        } else {
+          pulseRefButton();
+          showFeedback('error', 'Inte riktigt. Räkna prickavstånden för basen (b) och höjden (h) och kontrollera uträkningen.');
+        }
+      } else {
+        const sumCuts = p.cuts.reduce((acc, c) => acc + c.area, 0);
+        if (Math.abs(val - sumCuts) < 0.01) {
+          showFeedback('error', `Det där är summan av de yttre trianglarna (${formatSv(sumCuts)} cm²). Subtrahera dem från ramens area (${formatSv(p.boxArea)} cm²).`);
+        } else {
+          showFeedback('error', `Inte riktigt. Ta ramens area (${formatSv(p.boxArea)} cm²) minus alla yttre trianglar (${p.cuts.map(c => formatSv(c.area)).join(' + ')} = ${formatSv(sumCuts)} cm²).`);
+        }
+      }
+      areaEl.focus();
+      areaEl.select();
+    }
+
+    function showFeedback(type, msg) {
+      const el = document.getElementById('feedbackBanner');
+      el.className = `feedback-banner show ${type}`;
+      el.textContent = msg;
+    }
+
+    function hideFeedback() {
+      const el = document.getElementById('feedbackBanner');
+      el.className = 'feedback-banner';
+      el.textContent = '';
+    }
+
+    function updateBadges() {
+      document.getElementById('badge-guidad').textContent = `${state.scores.guidad} / ${state.targets.guidad}`;
+      document.getElementById('badge-direkt').textContent = `${state.scores.direkt} / ${state.targets.direkt}`;
+      document.getElementById('badge-utmaning').textContent = `${state.scores.utmaning} / ${state.targets.utmaning}`;
+
+      if (state.scores.guidad >= state.targets.guidad) {
+        state.unlocked.direkt = true;
+        document.getElementById('tab-direkt').disabled = false;
+        document.getElementById('icon-direkt').textContent = '';
+        document.getElementById('icon-guidad').textContent = '✓ ';
+      }
+      if (state.scores.direkt >= state.targets.direkt) {
+        state.unlocked.utmaning = true;
+        document.getElementById('tab-utmaning').disabled = false;
+        document.getElementById('icon-utmaning').textContent = '';
+        document.getElementById('icon-direkt').textContent = '✓ ';
+      }
+      if (state.scores.utmaning >= state.targets.utmaning) {
+        document.getElementById('icon-utmaning').textContent = '✓ ';
+      }
+    }
+
+    function triggerMilestone() {
+      const banner = document.getElementById('milestoneBanner');
+      const text = document.getElementById('milestoneText');
+      const nextBtn = document.getElementById('nextPhaseBtn');
+
+      if (state.phase === 'guidad') {
+        text.textContent = `Snyggt! Du har klarat ${state.targets.guidad} uppgifter i 1. Guidad och låst upp 2. Direkt.`;
+        nextBtn.style.display = 'inline-block';
+      } else if (state.phase === 'direkt') {
+        text.textContent = `Snyggt! Du har klarat ${state.targets.direkt} uppgifter i 2. Direkt och låst upp 3. Utmaning.`;
+        nextBtn.style.display = 'inline-block';
+      } else {
+        text.textContent = `Grymt jobbat! Du har klarat alla nivåer i Area på rutnätet.`;
+        nextBtn.style.display = 'none';
+      }
+      banner.classList.add('show');
+    }
+
+    function advanceToNextPhase() {
+      if (state.phase === 'guidad') switchPhase('direkt');
+      else if (state.phase === 'direkt') switchPhase('utmaning');
+    }
+
+    function dismissMilestone() {
+      document.getElementById('milestoneBanner').classList.remove('show');
+      loadNewProblem();
+    }
+
+    /* =========================================================================
+       SCREEN LOCK (2 MIN COUNTDOWN) & CLASSROOM SHORTCUTS
+       ========================================================================= */
+    function registerMistake() {
+      if (state.teacherMode) return;
+      state.consecutiveMistakes++;
+      if (state.consecutiveMistakes >= 4) {
+        startScreenLock();
+      }
+    }
+
+    function startScreenLock() {
+      state.lockRemaining = 120;
+      document.getElementById('lockOverlay').classList.add('open');
+      updateLockTimer();
+      state.lockInterval = setInterval(() => {
+        state.lockRemaining--;
+        updateLockTimer();
+        if (state.lockRemaining <= 0) {
+          unlockScreen(false);
+        }
+      }, 1000);
+    }
+
+    function updateLockTimer() {
+      const m = String(Math.floor(state.lockRemaining / 60)).padStart(2, '0');
+      const s = String(state.lockRemaining % 60).padStart(2, '0');
+      document.getElementById('lockTimer').textContent = `${m}:${s}`;
+    }
+
+    function unlockScreen(byTeacher) {
+      if (state.lockInterval) clearInterval(state.lockInterval);
+      state.lockInterval = null;
+      state.consecutiveMistakes = 0;
+      document.getElementById('lockOverlay').classList.remove('open');
+      const activeInp = document.querySelector('#dynamicPracticeZone input:not([disabled])');
+      if (activeInp) activeInp.focus();
+    }
+
+    function toggleTeacherMode() {
+      state.teacherMode = !state.teacherMode;
+      document.body.classList.toggle('teacher-mode', state.teacherMode);
+      if (state.teacherMode) {
+        state.unlocked.direkt = true;
+        state.unlocked.utmaning = true;
+        document.getElementById('tab-direkt').disabled = false;
+        document.getElementById('tab-utmaning').disabled = false;
+        document.getElementById('icon-direkt').textContent = '';
+        document.getElementById('icon-utmaning').textContent = '';
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !document.getElementById('lockOverlay').classList.contains('open')) {
+        if (state.phase !== 'concept') {
+          e.preventDefault();
+          handlePrimaryAction();
+        }
+      }
+      if (e.shiftKey && e.key.toUpperCase() === 'F') {
+        e.preventDefault();
+        if (state.phase === 'concept') switchPhase('guidad');
+        else loadNewProblem();
+      }
+      if (e.shiftKey && e.key.toUpperCase() === 'L') {
+        e.preventDefault();
+        if (document.getElementById('lockOverlay').classList.contains('open')) {
+          unlockScreen(true);
+        } else {
+          toggleTeacherMode();
+        }
+      }
+    });
+
+    /* =========================================================================
+       LEFT-ANCHORED FORMELBLAD POPOVER & THEME TOGGLE
+       ========================================================================= */
+    function toggleRefPanel() {
+      const panel = document.getElementById('refPanel');
+      const btn = document.getElementById('refToggleBtn');
+      const isOpen = panel.classList.toggle('open');
+      btn.classList.toggle('active', isOpen);
+    }
+
+    function pulseRefButton() {
+      const btn = document.getElementById('refToggleBtn');
+      btn.classList.remove('pulse-amber');
+      void btn.offsetWidth;
+      btn.classList.add('pulse-amber');
+    }
+
+    function toggleTheme() {
+      state.dark = !state.dark;
+      document.body.classList.toggle('dark', state.dark);
+      document.getElementById('themeToggleBtn').textContent = state.dark ? 'Ljust läge' : 'Mörkt läge';
+    }
+
+    switchPhase('concept');
+  </script>
+</body>
+</html>
