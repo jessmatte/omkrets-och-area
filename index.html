@@ -1,0 +1,3331 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omkrets och area – Triangel, rektangel &amp; cirkel</title>
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-header: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --border-strong: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --warning: #d97706;
+      --warning-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --shape-fill: rgba(37, 99, 235, 0.14);
+      --shape-stroke: #1e40af;
+      --perim-stroke: #ea580c;
+      --area-fill: rgba(16, 185, 129, 0.28);
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    body.dark {
+      --bg-app: #0b1120;
+      --bg-card: #1e293b;
+      --bg-subtle: #0f172a;
+      --bg-header: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --border-strong: #475569;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --accent-soft: rgba(59, 130, 246, 0.18);
+      --success: #22c55e;
+      --success-soft: rgba(34, 197, 94, 0.15);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245, 158, 11, 0.16);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.16);
+      --shape-fill: rgba(59, 130, 246, 0.22);
+      --shape-stroke: #93c5fd;
+      --perim-stroke: #fb923c;
+      --area-fill: rgba(52, 211, 153, 0.28);
+      --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg-app);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Bar (48px) */
+    header {
+      height: 48px;
+      min-height: 48px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      position: relative;
+      z-index: 40;
+    }
+
+    .left-header-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .phase-tabs {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--bg-subtle);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .phase-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .phase-tab:hover:not(:disabled) {
+      color: var(--text-main);
+      background: var(--bg-card);
+    }
+
+    .phase-tab.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .phase-tab:disabled {
+      opacity: 0.52;
+      cursor: not-allowed;
+    }
+
+    .badge-pill {
+      font-size: 0.74rem;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.12);
+    }
+    .phase-tab.active .badge-pill {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .tool-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .tool-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .tool-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .tool-btn.pulse-amber {
+      animation: pulseAmber 1.1s ease-in-out 2;
+      border-color: var(--warning);
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    @keyframes pulseAmber {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    /* Floating Popovers */
+    .popover-panel {
+      position: fixed;
+      top: 54px;
+      z-index: 50;
+      background: var(--bg-card);
+      border: 2px solid var(--border-strong);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+      padding: 16px;
+      display: none;
+    }
+    .popover-panel.open {
+      display: block;
+    }
+
+    #formulaPopover {
+      right: 14px;
+      width: 38rem;
+      max-width: 95vw;
+      font-size: 0.96rem;
+    }
+
+    #calcPopover {
+      left: 14px;
+      width: 19rem;
+      max-width: 92vw;
+    }
+
+    .popover-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .close-pop {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 2px 9px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    /* Skolverket Official Geometri Layout */
+    .skolverket-sheet {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sk-row {
+      display: grid;
+      grid-template-columns: 135px 1fr 120px;
+      align-items: center;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 14px;
+      gap: 10px;
+    }
+
+    .sk-name {
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    .sk-formulas {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+
+    .sk-note {
+      background: var(--warning-soft);
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      line-height: 1.05;
+      margin: 0 2px;
+    }
+    .frac-top {
+      border-bottom: 1.5px solid currentColor;
+      padding: 0 4px 2px;
+    }
+    .frac-bot {
+      padding: 2px 4px 0;
+    }
+
+    /* Calculator Popover */
+    .calc-display {
+      width: 100%;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: right;
+      margin-bottom: 10px;
+    }
+    .calc-expr {
+      min-height: 1.1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .calc-val {
+      font-size: 1.55rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .calc-key {
+      padding: 9px 4px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .calc-key:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .calc-key.op {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .calc-key.eq {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .calc-key.clear {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    /* Main Workspace Container */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      overflow: hidden;
+    }
+
+    .workspace-card {
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      max-height: 675px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 45% 55%;
+      overflow: hidden;
+    }
+
+    .visual-pane {
+      background: var(--bg-subtle);
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .visual-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 32px;
+    }
+
+    .visual-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .svg-stage {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .svg-stage svg {
+      width: 100%;
+      height: 100%;
+      max-height: 440px;
+    }
+
+    /* Interactive Diagram Hit Zones in Phase 1 */
+    .hit-region {
+      cursor: pointer;
+      transition: opacity 0.15s, stroke-width 0.15s;
+    }
+    .hit-region:hover {
+      opacity: 0.82;
+    }
+
+    .visual-caption {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-align: center;
+      min-height: 1.4rem;
+    }
+
+    .work-pane {
+      padding: 16px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      gap: 10px;
+    }
+
+    /* Intro Sandbox Controls */
+    .seg-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .seg-btn {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .seg-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .slider-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .val-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .val-table th, .val-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .val-table th {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      font-weight: 700;
+      width: 46%;
+    }
+    .val-table td {
+      font-weight: 700;
+    }
+
+    /* Step Progress Pill inside Prompt */
+    .step-tracker {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .step-pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+    }
+    .step-pill.current {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .step-pill.done {
+      background: var(--success-soft);
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    /* Prompt Box */
+    .prompt-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 15px;
+    }
+    .prompt-main {
+      font-size: 1.06rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      line-height: 1.35;
+    }
+    .prompt-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .notebook-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--warning-soft);
+      border: 1px solid var(--warning);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    /* Phase 1 Choices */
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .choice-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .choice-btn.correct {
+      border-color: var(--success);
+      background: var(--success-soft);
+      color: var(--success);
+    }
+    .choice-btn.wrong {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+    .hotkey-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Phase 2 Formula Gate (Skolverket Style) */
+    .gate-section {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .step-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .formula-choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .f-choice {
+      padding: 8px 6px;
+      border-radius: 9px;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 76px;
+      gap: 4px;
+      line-height: 1.25;
+    }
+    .f-choice:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .f-choice.selected {
+      border-color: var(--success);
+      background: var(--success-soft);
+      color: var(--success);
+    }
+    .f-choice.wrong {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    /* Guided Substitution & Answer Boxes */
+    .work-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+    .work-box.done-box {
+      border-color: var(--success);
+      background: var(--success-soft);
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .prefix-lbl {
+      font-size: 1.15rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .num-input {
+      flex: 1;
+      max-width: 190px;
+      padding: 8px 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 2px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-main);
+      text-align: right;
+    }
+    .expr-input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 1.12rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 2px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-main);
+      text-align: left;
+    }
+    .num-input:focus, .expr-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .sym-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .sym-btn {
+      padding: 4px 11px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .sym-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .unit-group {
+      display: flex;
+      gap: 6px;
+    }
+    .unit-btn {
+      padding: 8px 14px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .unit-btn.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Positionssystemet Visual Card (Left Pane Rounding Aid) */
+    .pos-card {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pos-grid {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 4px;
+    }
+    .pos-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 4px;
+      min-width: 50px;
+      background: var(--bg-subtle);
+    }
+    .pos-col.target-col {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .pos-col.decide-col {
+      border-color: var(--warning);
+      background: var(--warning-soft);
+    }
+    .pos-name {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .pos-digit {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .pos-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-top: 4px;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .pos-col.target-col .pos-tag {
+      background: var(--accent);
+      color: #fff;
+    }
+    .pos-col.decide-col .pos-tag {
+      background: var(--warning);
+      color: #fff;
+    }
+    .pos-comma {
+      font-size: 1.8rem;
+      font-weight: 800;
+      align-self: center;
+      padding: 0 2px;
+    }
+    .pos-rule-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    /* Feedback & Milestone Banners */
+    .feedback-banner {
+      padding: 9px 13px;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: none;
+      line-height: 1.35;
+    }
+    .feedback-banner.show {
+      display: block;
+    }
+    .feedback-banner.error {
+      background: var(--danger-soft);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .feedback-banner.success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .inline-practice-btn {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--warning);
+      background: var(--warning-soft);
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .inline-practice-btn:hover {
+      background: var(--warning);
+      color: #fff;
+    }
+
+    .milestone-banner {
+      background: var(--success-soft);
+      border: 2px solid var(--success);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .milestone-banner.show {
+      display: flex;
+    }
+    .milestone-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: auto;
+    }
+    .primary-btn {
+      padding: 10px 18px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      border-radius: 9px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+    }
+    .primary-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+    .primary-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .secondary-btn {
+      padding: 9px 13px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: 9px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    /* 4-Mistake Screen Lock Modal */
+    .lock-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lock-overlay.show {
+      display: flex;
+    }
+    .lock-modal {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 2px solid var(--warning);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 26px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+    .lock-timer {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--warning);
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="left-header-group">
+      <div class="brand">Omkrets och area</div>
+      <button class="tool-btn" id="btnCalc" type="button">🧮 Miniräknare</button>
+    </div>
+
+    <div class="nav-group">
+      <nav class="phase-tabs" id="phaseTabs">
+        <button class="phase-tab active" data-tab="intro">Begrepp</button>
+        <button class="phase-tab" data-tab="p1">1. Begrepp <span class="badge-pill" id="badge-p1">0/8</span></button>
+        <button class="phase-tab" data-tab="p2" disabled>🔒 2. Guidad <span class="badge-pill" id="badge-p2">0/6</span></button>
+        <button class="phase-tab" data-tab="p2b" disabled>🔒 2b. Avrundning (valfri)</button>
+        <button class="phase-tab" data-tab="p3" disabled>🔒 3. Direkt <span class="badge-pill" id="badge-p3">0/6</span></button>
+      </nav>
+    </div>
+
+    <div class="nav-group">
+      <button class="tool-btn" id="btnFormula" type="button">📐 Formelblad</button>
+      <button class="tool-btn" id="btnTheme" type="button">🌙 Mörkt läge</button>
+    </div>
+  </header>
+
+  <!-- Floating Skolverket Formelblad Ma 1 (Geometri) -->
+  <div class="popover-panel" id="formulaPopover" role="dialog" aria-label="Formelblad Matematik 1">
+    <div class="popover-header">
+      <span>Formelblad – Matematik 1 (Geometri, Skolverket)</span>
+      <button class="close-pop" id="closeFormula" type="button">✕</button>
+    </div>
+    <div class="skolverket-sheet">
+      <!-- Triangel -->
+      <div class="sk-row">
+        <div class="sk-name">Triangel</div>
+        <div class="sk-formulas">
+          <div>
+            A = <span class="frac"><span class="frac-top">bh</span><span class="frac-bot">2</span></span>
+          </div>
+        </div>
+        <svg viewBox="0 0 110 68" width="110" height="68">
+          <polygon points="12,56 98,56 68,12" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <line x1="68" y1="12" x2="68" y2="56" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+          <polyline points="68,49 75,49 75,56" fill="none" stroke="currentColor" stroke-width="1.3" />
+          <text x="55" y="66" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">b</text>
+          <text x="77" y="38" fill="currentColor" font-size="11" font-style="italic">h</text>
+        </svg>
+      </div>
+
+      <!-- Parallellogram / Rektangel -->
+      <div class="sk-row">
+        <div class="sk-name">Parallellogram<br><span style="font-weight:400;font-size:0.82rem;color:var(--text-muted);">(även rektangel)</span></div>
+        <div class="sk-formulas">
+          <div>A = bh</div>
+        </div>
+        <svg viewBox="0 0 110 68" width="110" height="68">
+          <polygon points="10,56 82,56 98,14 26,14" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <line x1="26" y1="14" x2="26" y2="56" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+          <polyline points="26,49 33,49 33,56" fill="none" stroke="currentColor" stroke-width="1.3" />
+          <text x="46" y="66" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">b</text>
+          <text x="34" y="38" fill="currentColor" font-size="11" font-style="italic">h</text>
+        </svg>
+      </div>
+
+      <!-- Cirkel -->
+      <div class="sk-row">
+        <div class="sk-name">Cirkel</div>
+        <div class="sk-formulas">
+          <div>
+            A = πr² = <span class="frac"><span class="frac-top">πd²</span><span class="frac-bot">4</span></span>
+          </div>
+          <div>
+            O = 2πr = πd
+          </div>
+        </div>
+        <svg viewBox="0 0 110 74" width="110" height="74">
+          <circle cx="55" cy="37" r="28" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <line x1="27" y1="37" x2="83" y2="37" stroke="currentColor" stroke-width="1.3" />
+          <line x1="55" y1="37" x2="75" y2="17" stroke="currentColor" stroke-width="1.3" />
+          <circle cx="55" cy="37" r="2" fill="currentColor" />
+          <text x="41" y="33" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">d</text>
+          <text x="69" y="31" fill="currentColor" font-size="11" font-style="italic">r</text>
+        </svg>
+      </div>
+
+      <div class="sk-note">
+        <strong>Viktigt:</strong> Omkretsen för rektangel och triangel står <em>inte</em> på formelbladet – addera alla yttre sidor. För cirkeln väljer du den formel som passar utifrån vad som syns i figuren (<strong>r</strong> eller <strong>d</strong>).
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Miniräknare (Left-anchored) -->
+  <div class="popover-panel" id="calcPopover" role="dialog" aria-label="Miniräknare">
+    <div class="popover-header">
+      <span>Miniräknare</span>
+      <button class="close-pop" id="closeCalc" type="button">✕</button>
+    </div>
+    <div class="calc-display">
+      <div class="calc-expr" id="calcExpr"></div>
+      <div class="calc-val" id="calcVal">0</div>
+    </div>
+    <div class="calc-grid" id="calcGrid">
+      <button class="calc-key clear" data-calc="C" type="button">C</button>
+      <button class="calc-key" data-calc="BS" type="button">⌫</button>
+      <button class="calc-key op" data-calc="PI" type="button">π</button>
+      <button class="calc-key op" data-calc="/" type="button">/</button>
+
+      <button class="calc-key" data-calc="7" type="button">7</button>
+      <button class="calc-key" data-calc="8" type="button">8</button>
+      <button class="calc-key" data-calc="9" type="button">9</button>
+      <button class="calc-key op" data-calc="*" type="button">×</button>
+
+      <button class="calc-key" data-calc="4" type="button">4</button>
+      <button class="calc-key" data-calc="5" type="button">5</button>
+      <button class="calc-key" data-calc="6" type="button">6</button>
+      <button class="calc-key op" data-calc="-" type="button">−</button>
+
+      <button class="calc-key" data-calc="1" type="button">1</button>
+      <button class="calc-key" data-calc="2" type="button">2</button>
+      <button class="calc-key" data-calc="3" type="button">3</button>
+      <button class="calc-key op" data-calc="+" type="button">+</button>
+
+      <button class="calc-key" data-calc="0" type="button">0</button>
+      <button class="calc-key" data-calc="," type="button">,</button>
+      <button class="calc-key op" data-calc="SQ" type="button">x²</button>
+      <button class="calc-key eq" data-calc="=" type="button">=</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="workspace-card">
+      <!-- Left Column: Visual Aid -->
+      <section class="visual-pane">
+        <div class="visual-header">
+          <span class="visual-title" id="visualHeaderLabel">Interaktiv modell</span>
+          <div id="visualControls"></div>
+        </div>
+        <div class="svg-stage" id="svgStage"></div>
+        <div class="visual-caption" id="visualCaption"></div>
+      </section>
+
+      <!-- Right Column: Interactive Workspace -->
+      <section class="work-pane" id="workPane"></section>
+    </div>
+  </main>
+
+  <!-- 4-Mistake Screen Lock Modal -->
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-modal">
+      <h2 style="margin:0 0 8px 0;">Paus – Räck upp handen</h2>
+      <p style="margin:0;color:var(--text-muted);font-size:0.98rem;">
+        Du har svarat fel fyra gånger i rad. Räck upp handen och be din lärare om hjälp innan du fortsätter.
+      </p>
+      <div class="lock-timer" id="lockTimer">02:00</div>
+      <button class="secondary-btn" id="btnTeacherUnlock" type="button">Lås upp</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =========================================================
+         STATE & CONFIGURATION
+      ========================================================= */
+      const PHASE_TARGETS = { p1: 8, p2: 6, p3: 6 };
+
+      /* Verified circle configurations where Omkrets and Area ALWAYS round
+         in OPPOSITE directions (one UP, one DOWN) for both π = 3.14 and Math.PI */
+      const OPPOSITE_CIRCLE_CONFIGS = [
+        { r: 3,   d: 6 },   // O ≈ 18.85 (UP -> 19),   A ≈ 28.27 (DOWN -> 28)
+        { r: 5,   d: 10 },  // O ≈ 31.42 (DOWN -> 31), A ≈ 78.54 (UP -> 79)
+        { r: 6,   d: 12 },  // O ≈ 37.70 (UP -> 38),   A ≈ 113.10 (DOWN -> 113)
+        { r: 9,   d: 18 },  // O ≈ 56.55 (UP -> 57),   A ≈ 254.47 (DOWN -> 254)
+        { r: 4.5, d: 9 },   // O ≈ 28.27 (DOWN -> 28), A ≈ 63.62 (UP -> 64)
+        { r: 5.5, d: 11 },  // O ≈ 34.56 (UP -> 35),   A ≈ 95.03 (DOWN -> 95)
+        { r: 6.5, d: 13 }   // O ≈ 40.84 (UP -> 41),   A ≈ 132.73 (DOWN -> 133)
+      ];
+
+      const state = {
+        activeTab: "intro",
+        darkMode: false,
+        teacherMode: false,
+        progress: { p1: 0, p2: 0, p2b: 0, p3: 0 },
+        unlocked: { p1: true, p2: false, p2b: false, p3: false },
+        consecutiveErrors: 0,
+        lockRemaining: 0,
+        lockInterval: null,
+
+        // Intro sandbox state
+        intro: {
+          shape: "rect", // rect | tri | circle
+          mode: "area",  // perim | area
+          after: false,
+          b: 6,
+          h: 4,
+          r: 3
+        },
+
+        // Phase 1 state (~50/50 click vs MCQ, max 2 same answers in a row)
+        p1: {
+          deck: [],
+          lastAnswers: [],
+          lastMode: "mcq"
+        },
+
+        // Phase 2 & Phase 3 state
+        decks: { p2: [], p3: [] },
+        lastSubtypes: { p2: [], p3: [] },
+        problem: null,
+        subStep: "O", // "O" (Omkrets first) -> "A" (Area second)
+        solved: false,
+
+        // Guided sub-step state inside Phase 2
+        guided: {
+          stage: "formula", // "radius" | "formula" | "subst" | "calc" | "round"
+          selectedFormula: null,
+          substText: "",
+          calcRawVal: null,
+          calcUnit: "",
+          showPosHelper: false,
+          roundingStruggle: false
+        },
+
+        // Direct phase state (Phase 3)
+        direct: {
+          selectedUnit: "",
+          showPosHelper: false,
+          posSampleVal: null,
+          roundingStruggle: false
+        },
+
+        // Optional Phase 2b (Avrundning) state
+        p2b: {
+          lastDir: "down",
+          rawNum: 28.274,
+          expectedInt: 28,
+          dir: "down",
+          solved: false
+        },
+
+        // Calculator state
+        calc: {
+          current: "0",
+          prev: null,
+          op: null,
+          resetNext: false,
+          expr: ""
+        }
+      };
+
+      /* =========================================================
+         SKOLVERKET MINI-DIAGRAMS
+      ========================================================= */
+      const SK_DIAG_TRI = `<svg viewBox="0 0 110 62" width="88" height="48">
+        <polygon points="12,50 98,50 68,10" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <line x1="68" y1="10" x2="68" y2="50" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+        <polyline points="68,43 75,43 75,50" fill="none" stroke="currentColor" stroke-width="1.3" />
+        <text x="55" y="60" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">b</text>
+        <text x="77" y="34" fill="currentColor" font-size="11" font-style="italic">h</text>
+      </svg>`;
+
+      const SK_DIAG_PARA = `<svg viewBox="0 0 110 62" width="88" height="48">
+        <polygon points="10,50 82,50 98,10 26,10" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <line x1="26" y1="10" x2="26" y2="50" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2" />
+        <polyline points="26,43 33,43 33,50" fill="none" stroke="currentColor" stroke-width="1.3" />
+        <text x="46" y="60" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">b</text>
+        <text x="34" y="34" fill="currentColor" font-size="11" font-style="italic">h</text>
+      </svg>`;
+
+      const SK_DIAG_CIRC = `<svg viewBox="0 0 110 66" width="88" height="52">
+        <circle cx="55" cy="33" r="25" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <line x1="30" y1="33" x2="80" y2="33" stroke="currentColor" stroke-width="1.3" />
+        <line x1="55" y1="33" x2="73" y2="15" stroke="currentColor" stroke-width="1.3" />
+        <circle cx="55" cy="33" r="2" fill="currentColor" />
+        <text x="42" y="29" text-anchor="middle" fill="currentColor" font-size="11" font-style="italic">d</text>
+        <text x="68" y="27" fill="currentColor" font-size="11" font-style="italic">r</text>
+      </svg>`;
+
+      /* =========================================================
+         UTILITIES
+      ========================================================= */
+      function fmt(num, decimals) {
+        if (decimals === undefined) {
+          const rounded = Math.round(num * 1000) / 1000;
+          return String(rounded).replace(".", ",");
+        }
+        return num.toFixed(decimals).replace(".", ",");
+      }
+
+      function parseNum(str) {
+        if (typeof str !== "string") return NaN;
+        const cleaned = str.trim().replace(/\s+/g, "").replace(",", ".").replace(/\u2212/g, "-");
+        if (cleaned === "") return NaN;
+        return Number(cleaned);
+      }
+
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = a[i];
+          a[i] = a[j];
+          a[j] = tmp;
+        }
+        return a;
+      }
+
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function approxEq(a, b, tol) {
+        return Math.abs(a - b) <= (tol || 0.15);
+      }
+
+      function pickFromDeck(phaseKey, subtypes) {
+        if (!state.decks[phaseKey] || state.decks[phaseKey].length === 0) {
+          state.decks[phaseKey] = shuffle(subtypes.slice());
+        }
+        const recent = state.lastSubtypes[phaseKey];
+        const lastOne = recent.length > 0 ? recent[recent.length - 1] : null;
+
+        let idx = 0;
+        if (lastOne && state.decks[phaseKey].length > 1 && state.decks[phaseKey][0] === lastOne) {
+          const altIdx = state.decks[phaseKey].findIndex(s => s !== lastOne);
+          if (altIdx !== -1) idx = altIdx;
+        }
+        const chosen = state.decks[phaseKey].splice(idx, 1)[0];
+        recent.push(chosen);
+        if (recent.length > 16) recent.shift();
+        return chosen;
+      }
+
+      /* =========================================================
+         DOM REFERENCES
+      ========================================================= */
+      const svgStage = document.getElementById("svgStage");
+      const visualHeaderLabel = document.getElementById("visualHeaderLabel");
+      const visualControls = document.getElementById("visualControls");
+      const visualCaption = document.getElementById("visualCaption");
+      const workPane = document.getElementById("workPane");
+      const formulaPopover = document.getElementById("formulaPopover");
+      const calcPopover = document.getElementById("calcPopover");
+      const btnFormula = document.getElementById("btnFormula");
+      const btnCalc = document.getElementById("btnCalc");
+      const btnTheme = document.getElementById("btnTheme");
+
+      /* =========================================================
+         TOP BAR, POPOVERS & CALCULATOR
+      ========================================================= */
+      function updateHeaderUI() {
+        document.querySelectorAll(".phase-tab").forEach(btn => {
+          const tab = btn.dataset.tab;
+          btn.classList.toggle("active", tab === state.activeTab);
+          if (tab !== "intro") {
+            const isUnlocked = state.teacherMode || state.unlocked[tab];
+            btn.disabled = !isUnlocked;
+
+            if (tab === "p2b") {
+              const prefix = isUnlocked ? "" : "🔒 ";
+              const countStr = state.progress.p2b > 0 ? ` <span class="badge-pill">${state.progress.p2b}</span>` : "";
+              btn.innerHTML = `${prefix}2b. Avrundning (valfri)${countStr}`;
+            } else {
+              const target = PHASE_TARGETS[tab];
+              const done = state.progress[tab];
+              const labelMap = { p1: "1. Begrepp", p2: "2. Guidad", p3: "3. Direkt" };
+              const prefix = done >= target ? "✓ " : (isUnlocked ? "" : "🔒 ");
+              btn.innerHTML = `${prefix}${labelMap[tab]} <span class="badge-pill">${done}/${target}</span>`;
+            }
+          }
+        });
+      }
+
+      document.getElementById("phaseTabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".phase-tab");
+        if (!btn || btn.disabled) return;
+        switchTab(btn.dataset.tab);
+      });
+
+      btnFormula.addEventListener("click", () => {
+        calcPopover.classList.remove("open");
+        btnCalc.classList.remove("active");
+        const isOpen = formulaPopover.classList.toggle("open");
+        btnFormula.classList.toggle("active", isOpen);
+      });
+
+      document.getElementById("closeFormula").addEventListener("click", () => {
+        formulaPopover.classList.remove("open");
+        btnFormula.classList.remove("active");
+      });
+
+      btnCalc.addEventListener("click", () => {
+        formulaPopover.classList.remove("open");
+        btnFormula.classList.remove("active");
+        const isOpen = calcPopover.classList.toggle("open");
+        btnCalc.classList.toggle("active", isOpen);
+      });
+
+      document.getElementById("closeCalc").addEventListener("click", () => {
+        calcPopover.classList.remove("open");
+        btnCalc.classList.remove("active");
+      });
+
+      btnTheme.addEventListener("click", () => {
+        state.darkMode = !state.darkMode;
+        document.body.classList.toggle("dark", state.darkMode);
+        btnTheme.textContent = state.darkMode ? "☀️ Ljust läge" : "🌙 Mörkt läge";
+      });
+
+      function updateCalcDisplay() {
+        document.getElementById("calcExpr").textContent = state.calc.expr;
+        document.getElementById("calcVal").textContent = state.calc.current.replace(".", ",").replace("-", "\u2212");
+      }
+
+      function computeCalc(a, op, b) {
+        if (op === "+") return a + b;
+        if (op === "-") return a - b;
+        if (op === "*") return a * b;
+        if (op === "/") return b === 0 ? NaN : a / b;
+        return b;
+      }
+
+      function handleCalcKey(key) {
+        const c = state.calc;
+        if (key === "C") {
+          c.current = "0";
+          c.prev = null;
+          c.op = null;
+          c.resetNext = false;
+          c.expr = "";
+        } else if (key === "BS") {
+          if (c.resetNext) return;
+          c.current = c.current.length > 1 ? c.current.slice(0, -1) : "0";
+          if (c.current === "-") c.current = "0";
+        } else if (key === "PI") {
+          c.current = "3.14";
+          c.resetNext = false;
+        } else if (key === "SQ") {
+          const val = Number(c.current);
+          if (!isNaN(val)) {
+            const res = Math.round(val * val * 10000) / 10000;
+            c.expr = `${fmt(val)}² =`;
+            c.current = String(res);
+            c.resetNext = true;
+          }
+        } else if (key === ",") {
+          if (c.resetNext) {
+            c.current = "0.";
+            c.resetNext = false;
+          } else if (!c.current.includes(".")) {
+            c.current += ".";
+          }
+        } else if (/^[0-9]$/.test(key)) {
+          if (c.resetNext || c.current === "0") {
+            c.current = key;
+            c.resetNext = false;
+          } else if (c.current.length < 12) {
+            c.current += key;
+          }
+        } else if (["+", "-", "*", "/"].includes(key)) {
+          const val = Number(c.current);
+          const sym = key === "*" ? "×" : (key === "-" ? "\u2212" : key);
+          if (c.prev !== null && c.op && !c.resetNext) {
+            const res = computeCalc(c.prev, c.op, val);
+            c.prev = isNaN(res) ? null : Math.round(res * 10000) / 10000;
+            c.current = isNaN(res) ? "Fel" : String(c.prev);
+          } else {
+            c.prev = val;
+          }
+          c.op = key;
+          c.expr = `${fmt(c.prev || 0)} ${sym}`;
+          c.resetNext = true;
+        } else if (key === "=") {
+          if (c.prev !== null && c.op) {
+            const val = Number(c.current);
+            const sym = c.op === "*" ? "×" : (c.op === "-" ? "\u2212" : c.op);
+            const res = computeCalc(c.prev, c.op, val);
+            c.expr = `${fmt(c.prev)} ${sym} ${fmt(val)} =`;
+            c.current = isNaN(res) ? "Fel" : String(Math.round(res * 10000) / 10000);
+            c.prev = null;
+            c.op = null;
+            c.resetNext = true;
+          }
+        }
+        updateCalcDisplay();
+      }
+
+      document.getElementById("calcGrid").addEventListener("click", (e) => {
+        const btn = e.target.closest(".calc-key");
+        if (!btn) return;
+        handleCalcKey(btn.dataset.calc);
+      });
+
+      /* =========================================================
+         POSITIONSSYSTEMET ROUNDING VISUAL (LEFT PANE)
+      ========================================================= */
+      function renderPositionssystemet(rawVal) {
+        const num = Math.abs(rawVal);
+        const intPart = Math.floor(num);
+        const decStr = (num.toFixed(3).split(".")[1] || "000");
+
+        const h = Math.floor(intPart / 100) % 10;
+        const t = Math.floor(intPart / 10) % 10;
+        const e = intPart % 10;
+
+        const d1 = Number(decStr[0] || 0);
+        const d2 = Number(decStr[1] || 0);
+        const d3 = Number(decStr[2] || 0);
+
+        const roundsUp = d1 >= 5;
+        const roundedInt = roundsUp ? intPart + 1 : intPart;
+
+        const cols = [];
+        if (intPart >= 100) {
+          cols.push(`<div class="pos-col"><span class="pos-name">Hundratal</span><span class="pos-digit">${h}</span></div>`);
+        }
+        if (intPart >= 10) {
+          cols.push(`<div class="pos-col"><span class="pos-name">Tiotal</span><span class="pos-digit">${t}</span></div>`);
+        }
+        cols.push(`<div class="pos-col target-col">
+          <span class="pos-name">Ental</span>
+          <span class="pos-digit">${e}</span>
+          <span class="pos-tag">Avrunda</span>
+        </div>`);
+
+        cols.push(`<div class="pos-comma">,</div>`);
+
+        cols.push(`<div class="pos-col decide-col">
+          <span class="pos-name">Tiondelar</span>
+          <span class="pos-digit">${d1}</span>
+          <span class="pos-tag">Beslut</span>
+        </div>`);
+        cols.push(`<div class="pos-col"><span class="pos-name">Hundradelar</span><span class="pos-digit">${d2}</span></div>`);
+        cols.push(`<div class="pos-col"><span class="pos-name">Tusendelar</span><span class="pos-digit">${d3}</span></div>`);
+
+        return `
+          <div class="pos-card">
+            <div style="text-align:center;font-weight:700;font-size:0.95rem;">
+              Positionssystemet: <span style="color:var(--accent);">${fmt(rawVal, 3)}</span> → närmaste heltal
+            </div>
+            <div class="pos-grid">${cols.join("")}</div>
+            <div class="pos-rule-box">
+              <div><strong>Steg 1:</strong> Markera <strong>Ental</strong> (sista siffran före kommatecknet).</div>
+              <div><strong>Steg 2:</strong> Titta på siffran direkt till höger (<strong>Tiondelar = ${d1}</strong>):</div>
+              <ul style="margin:4px 0 4px 18px;padding:0;">
+                <li><strong>0, 1, 2, 3, 4</strong> → Avrunda <strong>nedåt</strong> (behåll entalet)</li>
+                <li><strong>5, 6, 7, 8, 9</strong> → Avrunda <strong>uppåt</strong> (höj entalet med 1)</li>
+              </ul>
+              <div style="margin-top:4px;font-weight:700;color:${roundsUp ? "var(--warning)" : "var(--accent)"};">
+                Här är tiondelssiffran ${d1} (${roundsUp ? "5–9 → uppåt" : "0–4 → nedåt"}).
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      /* =========================================================
+         LANDING PAGE ("Begrepp") VISUAL & WORKSPACE
+      ========================================================= */
+      function renderIntroVisual() {
+        const { shape, mode, after, b, h, r } = state.intro;
+        visualHeaderLabel.textContent = "Interaktiv modell";
+        visualControls.innerHTML = `
+          <button class="tool-btn" id="btnToggleAfter" type="button">
+            ${after ? "↺ Visa före" : "▶ Spela upp efter"}
+          </button>
+        `;
+        document.getElementById("btnToggleAfter").addEventListener("click", () => {
+          state.intro.after = !state.intro.after;
+          renderIntroVisual();
+        });
+
+        let svg = `<svg viewBox="0 0 420 340">`;
+
+        if (shape === "rect") {
+          const scale = 28;
+          const w = b * scale;
+          const ht = h * scale;
+          const x0 = (420 - w) / 2;
+          const y0 = after && mode === "perim" ? 45 : (310 - ht) / 2;
+
+          if (mode === "area" && after) {
+            for (let gx = 0; gx < b; gx++) {
+              for (let gy = 0; gy < h; gy++) {
+                svg += `<rect x="${x0 + gx * scale}" y="${y0 + gy * scale}" width="${scale}" height="${scale}"
+                  fill="var(--area-fill)" stroke="var(--shape-stroke)" stroke-width="1.2" />`;
+              }
+            }
+          }
+
+          svg += `<rect x="${x0}" y="${y0}" width="${w}" height="${ht}"
+            fill="${mode === "area" && after ? "none" : "var(--shape-fill)"}"
+            stroke="${mode === "perim" ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+            stroke-width="${mode === "perim" ? "4.5" : "2.5"}" />`;
+
+          svg += `<text x="${x0 + w / 2}" y="${y0 + ht + 22}" text-anchor="middle" fill="var(--text-main)" font-size="16" font-weight="700">${b} cm</text>`;
+          svg += `<text x="${x0 - 14}" y="${y0 + ht / 2 + 5}" text-anchor="end" fill="var(--text-main)" font-size="16" font-weight="700">${h} cm</text>`;
+
+          if (mode === "perim" && after) {
+            const perim = 2 * (b + h);
+            const lineY = 265;
+            const totalW = 340;
+            const startX = 40;
+            const segs = [b, h, b, h];
+            let curX = startX;
+            segs.forEach((seg, idx) => {
+              const segW = (seg / perim) * totalW;
+              svg += `<line x1="${curX}" y1="${lineY}" x2="${curX + segW}" y2="${lineY}" stroke="var(--perim-stroke)" stroke-width="5" />`;
+              svg += `<circle cx="${curX}" cy="${lineY}" r="4" fill="var(--text-main)" />`;
+              svg += `<text x="${curX + segW / 2}" y="${lineY - 10}" text-anchor="middle" fill="var(--text-main)" font-size="14" font-weight="700">${seg}</text>`;
+              if (idx === 3) {
+                svg += `<circle cx="${curX + segW}" cy="${lineY}" r="4" fill="var(--text-main)" />`;
+              }
+              curX += segW;
+            });
+            svg += `<text x="210" y="${lineY + 26}" text-anchor="middle" fill="var(--perim-stroke)" font-size="16" font-weight="700">Total sträcka = ${perim} cm</text>`;
+          }
+
+          visualCaption.textContent = mode === "perim"
+            ? `Omkrets = ${b} + ${h} + ${b} + ${h} = ${2 * (b + h)} cm`
+            : `Area = ${b} · ${h} = ${b * h} cm² (antal rutor à 1 cm²)`;
+
+        } else if (shape === "tri") {
+          const scale = 28;
+          const w = b * scale;
+          const ht = h * scale;
+          const x0 = (420 - w) / 2;
+          const y0 = after && mode === "perim" ? 45 : (310 - ht) / 2;
+          const topX = x0 + w * 0.35;
+
+          if (mode === "area" && after) {
+            svg += `<rect x="${x0}" y="${y0}" width="${w}" height="${ht}"
+              fill="var(--area-fill)" stroke="var(--text-muted)" stroke-width="1.8" stroke-dasharray="6 4" />`;
+            svg += `<text x="${x0 + w - 8}" y="${y0 + 20}" text-anchor="end" fill="var(--text-muted)" font-size="14" font-weight="700">Hela rektangeln = ${b * h} cm²</text>`;
+          }
+
+          svg += `<polygon points="${x0},${y0 + ht} ${x0 + w},${y0 + ht} ${topX},${y0}"
+            fill="var(--shape-fill)"
+            stroke="${mode === "perim" ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+            stroke-width="${mode === "perim" ? "4.5" : "2.5"}" />`;
+
+          svg += `<line x1="${topX}" y1="${y0}" x2="${topX}" y2="${y0 + ht}" stroke="var(--text-main)" stroke-width="2" stroke-dasharray="5 4" />`;
+          svg += `<polyline points="${topX},${y0 + ht - 10} ${topX + 10},${y0 + ht - 10} ${topX + 10},${y0 + ht}" fill="none" stroke="var(--text-main)" stroke-width="1.8" />`;
+
+          const s1 = Math.round(Math.hypot(topX - x0, ht) / scale * 10) / 10;
+          const s2 = Math.round(Math.hypot(x0 + w - topX, ht) / scale * 10) / 10;
+
+          svg += `<text x="${x0 + w / 2}" y="${y0 + ht + 22}" text-anchor="middle" fill="var(--text-main)" font-size="16" font-weight="700">b = ${b} cm</text>`;
+          svg += `<text x="${topX + 8}" y="${y0 + ht / 2}" fill="var(--text-main)" font-size="15" font-weight="700">h = ${h} cm</text>`;
+
+          if (mode === "perim") {
+            svg += `<text x="${(x0 + topX) / 2 - 12}" y="${y0 + ht / 2}" text-anchor="end" fill="var(--perim-stroke)" font-size="14" font-weight="700">${fmt(s1)}</text>`;
+            svg += `<text x="${(x0 + w + topX) / 2 + 12}" y="${y0 + ht / 2}" text-anchor="start" fill="var(--perim-stroke)" font-size="14" font-weight="700">${fmt(s2)}</text>`;
+          }
+
+          if (mode === "perim" && after) {
+            const perim = Math.round((b + s1 + s2) * 10) / 10;
+            const lineY = 265;
+            svg += `<line x1="50" y1="${lineY}" x2="370" y2="${lineY}" stroke="var(--perim-stroke)" stroke-width="5" />`;
+            svg += `<text x="210" y="${lineY + 26}" text-anchor="middle" fill="var(--perim-stroke)" font-size="16" font-weight="700">O = ${b} + ${fmt(s1)} + ${fmt(s2)} = ${fmt(perim)} cm</text>`;
+          }
+
+          const triArea = (b * h) / 2;
+          visualCaption.textContent = mode === "perim"
+            ? `Omkrets = summan av de tre yttre sidorna`
+            : `Area = (${b} · ${h}) / 2 = ${fmt(triArea)} cm² (halva rektangeln)`;
+
+        } else {
+          const scale = 22;
+          const radPx = r * scale;
+          const cx = 210;
+          const cy = after && mode === "perim" ? 130 : 165;
+          const d = r * 2;
+          const perim = Math.round(3.14 * d * 10) / 10;
+          const area = Math.round(3.14 * r * r * 10) / 10;
+
+          svg += `<circle cx="${cx}" cy="${cy}" r="${radPx}"
+            fill="${mode === "area" && after ? "var(--area-fill)" : "var(--shape-fill)"}"
+            stroke="${mode === "perim" ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+            stroke-width="${mode === "perim" ? "4.5" : "2.5"}" />`;
+
+          svg += `<line x1="${cx}" y1="${cy}" x2="${cx + radPx}" y2="${cy}" stroke="var(--text-main)" stroke-width="2.5" />`;
+          svg += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--text-main)" />`;
+          svg += `<text x="${cx + radPx / 2}" y="${cy - 8}" text-anchor="middle" fill="var(--text-main)" font-size="15" font-weight="700">r = ${r} cm</text>`;
+          svg += `<text x="${cx}" y="${cy + radPx + 22}" text-anchor="middle" fill="var(--text-muted)" font-size="14" font-weight="700">d = ${d} cm</text>`;
+
+          if (mode === "perim" && after) {
+            const lineY = 278;
+            svg += `<line x1="45" y1="${lineY}" x2="375" y2="${lineY}" stroke="var(--perim-stroke)" stroke-width="5" />`;
+            svg += `<text x="210" y="${lineY + 25}" text-anchor="middle" fill="var(--perim-stroke)" font-size="16" font-weight="700">Utvecklad omkrets: π · ${d} ≈ ${fmt(perim)} cm</text>`;
+          }
+
+          visualCaption.textContent = mode === "perim"
+            ? `Omkrets ≈ 3,14 · ${d} = ${fmt(perim)} cm`
+            : `Area ≈ 3,14 · ${r}² = ${fmt(area)} cm²`;
+        }
+
+        svg += `</svg>`;
+        svgStage.innerHTML = svg;
+      }
+
+      function renderIntroWorkspace() {
+        const { shape, mode, b, h, r } = state.intro;
+        renderIntroVisual();
+
+        const perimVal = shape === "rect"
+          ? `${2 * (b + h)} cm`
+          : shape === "tri"
+            ? `${fmt(b + Math.round(Math.hypot(b * 0.35, h) * 10) / 10 + Math.round(Math.hypot(b * 0.65, h) * 10) / 10)} cm`
+            : `≈ ${fmt(Math.round(3.14 * 2 * r * 10) / 10)} cm`;
+
+        const areaVal = shape === "rect"
+          ? `${b * h} cm²`
+          : shape === "tri"
+            ? `${fmt((b * h) / 2)} cm²`
+            : `≈ ${fmt(Math.round(3.14 * r * r * 10) / 10)} cm²`;
+
+        const slidersHtml = shape === "circle"
+          ? `<div class="slider-row">
+               <span>Radie (r): <strong>${r} cm</strong> (d = ${r * 2} cm)</span>
+               <input type="range" id="slR" min="2" max="6" step="1" value="${r}" />
+             </div>`
+          : `<div class="slider-row">
+               <span>Bas (b): <strong>${b} cm</strong></span>
+               <input type="range" id="slB" min="2" max="10" step="1" value="${b}" />
+             </div>
+             <div class="slider-row">
+               <span>Höjd (h): <strong>${h} cm</strong></span>
+               <input type="range" id="slH" min="2" max="8" step="1" value="${h}" />
+             </div>`;
+
+        workPane.innerHTML = `
+          <div>
+            <div class="prompt-card" style="margin-bottom:10px;">
+              <p class="prompt-main">Utforska skillnaden mellan omkrets och area</p>
+              <p class="prompt-sub">Välj figur och begrepp. Klicka på <strong>Spela upp efter</strong> i figuren till vänster.</p>
+            </div>
+
+            <div class="seg-row" style="margin-bottom:8px;">
+              <button class="seg-btn ${shape === "rect" ? "active" : ""}" data-shape="rect" type="button">Rektangel</button>
+              <button class="seg-btn ${shape === "tri" ? "active" : ""}" data-shape="tri" type="button">Triangel</button>
+              <button class="seg-btn ${shape === "circle" ? "active" : ""}" data-shape="circle" type="button">Cirkel</button>
+            </div>
+
+            <div class="seg-row" style="margin-bottom:10px;">
+              <button class="seg-btn ${mode === "perim" ? "active" : ""}" data-mode="perim" type="button">Omkrets (sträckan runt om)</button>
+              <button class="seg-btn ${mode === "area" ? "active" : ""}" data-mode="area" type="button">Area (ytan inuti)</button>
+            </div>
+
+            <div class="slider-box" style="margin-bottom:10px;">
+              ${slidersHtml}
+            </div>
+
+            <table class="val-table">
+              <tr><th>Omkrets (O) – enhet: cm</th><td>${perimVal}</td></tr>
+              <tr><th>Area (A) – enhet: cm²</th><td>${areaVal}</td></tr>
+            </table>
+          </div>
+
+          <div class="action-bar">
+            <button class="primary-btn" id="btnStartP1" type="button">Börja träna (1. Begrepp) →</button>
+          </div>
+        `;
+
+        workPane.querySelectorAll("[data-shape]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            state.intro.shape = btn.dataset.shape;
+            state.intro.after = false;
+            renderIntroWorkspace();
+          });
+        });
+
+        workPane.querySelectorAll("[data-mode]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            state.intro.mode = btn.dataset.mode;
+            state.intro.after = false;
+            renderIntroWorkspace();
+          });
+        });
+
+        const slB = document.getElementById("slB");
+        if (slB) slB.addEventListener("input", () => { state.intro.b = Number(slB.value); renderIntroWorkspace(); });
+        const slH = document.getElementById("slH");
+        if (slH) slH.addEventListener("input", () => { state.intro.h = Number(slH.value); renderIntroWorkspace(); });
+        const slR = document.getElementById("slR");
+        if (slR) slR.addEventListener("input", () => { state.intro.r = Number(slR.value); renderIntroWorkspace(); });
+
+        document.getElementById("btnStartP1").addEventListener("click", () => switchTab("p1"));
+      }
+
+      /* =========================================================
+         PHASE 1: 1. BEGREPP (~50/50 Click-on-Diagram vs Fixed Alphabetical MCQ)
+         Cap: NO MORE THAN 2 consecutive identical answers ("Area" / "Omkrets")
+      ========================================================= */
+      function nextPhase1TargetConcept() {
+        const hist = state.p1.lastAnswers;
+        if (hist.length >= 2 && hist[hist.length - 1] === hist[hist.length - 2]) {
+          const forced = hist[hist.length - 1] === "Area" ? "Omkrets" : "Area";
+          hist.push(forced);
+          return forced;
+        }
+        const chosen = Math.random() < 0.5 ? "Area" : "Omkrets";
+        hist.push(chosen);
+        return chosen;
+      }
+
+      function buildPhase1Problem() {
+        const targetConcept = nextPhase1TargetConcept(); // "Area" or "Omkrets"
+        // ~50/50 toggle between click-on-diagram and multiple-choice
+        const isClickTask = state.p1.lastMode === "mcq"
+          ? (Math.random() < 0.65)
+          : (Math.random() < 0.35);
+        state.p1.lastMode = isClickTask ? "click" : "mcq";
+
+        if (isClickTask) {
+          const shapes = ["rect", "tri", "circle"];
+          const shape = shapes[randInt(0, shapes.length - 1)];
+          const askArea = targetConcept === "Area";
+          const shapeNames = { rect: "rektangeln", tri: "triangeln", circle: "cirkeln" };
+
+          return {
+            mode: "click",
+            targetConcept,
+            shape,
+            prompt: `Klicka på den del av ${shapeNames[shape]} som visar ${askArea ? "area" : "omkrets"}.`,
+            sub: askArea
+              ? "Area är hela ytan inuti figuren."
+              : "Omkrets är ytterkanten runt hela figuren.",
+            caption: `Klicka direkt i figuren till vänster (${targetConcept})`,
+            renderSvg: (highlightPart) => {
+              const areaFill = highlightPart === "Area" ? "var(--success-soft)" : "var(--shape-fill)";
+              const borderStroke = highlightPart === "Omkrets" ? "var(--success)" : "var(--shape-stroke)";
+              const borderWidth = highlightPart === "Omkrets" ? 9 : 6;
+
+              if (shape === "rect") {
+                return `<svg viewBox="0 0 420 320">
+                  <rect class="hit-region" data-part="Area" x="80" y="75" width="260" height="170"
+                    fill="${areaFill}" stroke="none" />
+                  <rect class="hit-region" data-part="Omkrets" x="80" y="75" width="260" height="170"
+                    fill="none" stroke="${borderStroke}" stroke-width="${borderWidth}" pointer-events="stroke" />
+                </svg>`;
+              }
+              if (shape === "tri") {
+                return `<svg viewBox="0 0 420 320">
+                  <polygon class="hit-region" data-part="Area" points="85,250 335,250 205,65"
+                    fill="${areaFill}" stroke="none" />
+                  <polygon class="hit-region" data-part="Omkrets" points="85,250 335,250 205,65"
+                    fill="none" stroke="${borderStroke}" stroke-width="${borderWidth}" stroke-linejoin="round" pointer-events="stroke" />
+                </svg>`;
+              }
+              return `<svg viewBox="0 0 420 320">
+                <circle class="hit-region" data-part="Area" cx="210" cy="160" r="102"
+                  fill="${areaFill}" stroke="none" />
+                <circle class="hit-region" data-part="Omkrets" cx="210" cy="160" r="102"
+                  fill="none" stroke="${borderStroke}" stroke-width="${borderWidth}" pointer-events="stroke" />
+              </svg>`;
+            }
+          };
+        }
+
+        // Multiple Choice (fixed alphabetical order: 1. Area, 2. Omkrets)
+        const areaScenarios = [
+          {
+            prompt: "Du ska köpa parkettgolv till ett rektangulärt klassrum.",
+            sub: "Vilket mått behöver du räkna ut för att veta hur mycket golv som går åt?",
+            caption: `Klassrumsgolv (${randInt(7, 12)} m × ${randInt(5, 8)} m)`,
+            svg: `<svg viewBox="0 0 420 320">
+              <rect x="70" y="70" width="280" height="180" fill="var(--area-fill)" stroke="var(--shape-stroke)" stroke-width="3" />
+              <line x1="70" y1="130" x2="350" y2="130" stroke="var(--shape-stroke)" stroke-opacity="0.35" stroke-width="1.5" />
+              <line x1="70" y1="190" x2="350" y2="190" stroke="var(--shape-stroke)" stroke-opacity="0.35" stroke-width="1.5" />
+            </svg>`
+          },
+          {
+            prompt: "Du ska köpa ett skyddstäcke som täcker hela vattenytan i en rund pool.",
+            sub: "Vilket mått avgör hur stort täcke som behövs?",
+            caption: `Rund pool (r = ${randInt(2, 5)} m)`,
+            svg: `<svg viewBox="0 0 420 320">
+              <circle cx="210" cy="158" r="100" fill="var(--area-fill)" stroke="var(--shape-stroke)" stroke-width="3" />
+            </svg>`
+          },
+          {
+            prompt: "Ett triangelformat segel ska sys av segelduk.",
+            sub: "Vilket mått beskriver hur mycket tyg hela seglet består av?",
+            caption: "Triangelformat segel",
+            svg: `<svg viewBox="0 0 420 320">
+              <polygon points="105,255 315,255 155,60" fill="var(--area-fill)" stroke="var(--shape-stroke)" stroke-width="3" />
+            </svg>`
+          },
+          {
+            prompt: "Titta på triangeln till vänster.",
+            sub: "Vad kallas storleken på den färgade ytan inuti triangeln?",
+            caption: "Färgad yta inuti triangel",
+            svg: `<svg viewBox="0 0 420 320">
+              <polygon points="90,245 330,245 200,65" fill="var(--area-fill)" stroke="var(--shape-stroke)" stroke-width="2.5" />
+            </svg>`
+          }
+        ];
+
+        const perimScenarios = [
+          {
+            prompt: "Du ska bygga ett staket runt en rektangulär trädgård.",
+            sub: "Vilket mått behöver du räkna ut för att veta hur långt staketet blir?",
+            caption: `Trädgård (${randInt(12, 20)} m × ${randInt(8, 14)} m)`,
+            svg: `<svg viewBox="0 0 420 320">
+              <rect x="70" y="70" width="280" height="180" fill="var(--shape-fill)" stroke="var(--perim-stroke)" stroke-width="5" stroke-dasharray="10 5" />
+            </svg>`
+          },
+          {
+            prompt: "Du ska sy ett kantband runt hela ytterkanten på en rund duk.",
+            sub: "Vilket mått behöver du beräkna för att veta hur långt band som krävs?",
+            caption: `Rund duk (d = ${randInt(100, 150)} cm)`,
+            svg: `<svg viewBox="0 0 420 320">
+              <circle cx="210" cy="158" r="100" fill="var(--shape-fill)" stroke="var(--perim-stroke)" stroke-width="5.5" stroke-dasharray="12 6" />
+            </svg>`
+          },
+          {
+            prompt: "Du ska sätta en trälist som ram runt hela ytterkanten av en tavla.",
+            sub: "Vilket mått behöver du beräkna för att veta hur lång trälist som behövs?",
+            caption: "Tavla",
+            svg: `<svg viewBox="0 0 420 320">
+              <rect x="115" y="55" width="190" height="205" fill="var(--shape-fill)" stroke="var(--perim-stroke)" stroke-width="7" />
+            </svg>`
+          },
+          {
+            prompt: "Titta på cirkeln till vänster.",
+            sub: "Vad visar den orangea ytterkanten runt cirkeln?",
+            caption: "Färgad ytterkant på cirkel",
+            svg: `<svg viewBox="0 0 420 320">
+              <circle cx="210" cy="160" r="98" fill="none" stroke="var(--perim-stroke)" stroke-width="6" />
+            </svg>`
+          }
+        ];
+
+        const pool = targetConcept === "Area" ? areaScenarios : perimScenarios;
+        const chosen = pool[randInt(0, pool.length - 1)];
+
+        return {
+          mode: "mcq",
+          targetConcept,
+          prompt: chosen.prompt,
+          sub: chosen.sub,
+          caption: chosen.caption,
+          options: [
+            { text: "Area", correct: targetConcept === "Area" },
+            { text: "Omkrets", correct: targetConcept === "Omkrets" }
+          ],
+          renderSvg: () => chosen.svg
+        };
+      }
+
+      function renderPhase1Workspace() {
+        const p = state.problem;
+        visualHeaderLabel.textContent = "1. Begrepp";
+        visualControls.innerHTML = "";
+        svgStage.innerHTML = p.renderSvg(null);
+        visualCaption.textContent = p.caption;
+
+        if (p.mode === "click") {
+          workPane.innerHTML = `
+            <div>
+              <div class="prompt-card" style="margin-bottom:14px;">
+                <p class="prompt-main">${p.prompt}</p>
+                <p class="prompt-sub">${p.sub}</p>
+              </div>
+              <div class="work-box" style="font-size:0.94rem;color:var(--text-muted);">
+                Klicka direkt på figuren till vänster (ytan inuti för <strong>Area</strong>, ytterkanten för <strong>Omkrets</strong>).
+              </div>
+            </div>
+
+            <div>
+              <div class="feedback-banner" id="fbBanner" style="margin-bottom:10px;"></div>
+              <div class="milestone-banner" id="msBanner" style="margin-bottom:10px;">
+                <strong>Snyggt! Du har klarat målet för 1. Begrepp.</strong>
+                <div class="milestone-actions">
+                  <button class="secondary-btn" id="btnStay" type="button">Fortsätt träna här</button>
+                  <button class="primary-btn" id="btnNextPhase" type="button">Gå till 2. Guidad →</button>
+                </div>
+              </div>
+              <div class="action-bar">
+                <button class="primary-btn" id="btnNextQ" type="button" style="display:none;">Nästa uppgift →</button>
+              </div>
+            </div>
+          `;
+
+          svgStage.querySelectorAll(".hit-region").forEach(el => {
+            el.addEventListener("click", () => {
+              if (state.solved) return;
+              handlePhase1ClickDiagram(el.dataset.part);
+            });
+          });
+        } else {
+          const choicesHtml = p.options.map((opt, idx) => `
+            <button class="choice-btn" data-idx="${idx}" type="button">
+              <span class="hotkey-box">${idx + 1}</span>
+              <span>${opt.text}</span>
+            </button>
+          `).join("");
+
+          workPane.innerHTML = `
+            <div>
+              <div class="prompt-card" style="margin-bottom:14px;">
+                <p class="prompt-main">${p.prompt}</p>
+                <p class="prompt-sub">${p.sub}</p>
+              </div>
+              <div class="choice-list" id="choiceList">${choicesHtml}</div>
+            </div>
+
+            <div>
+              <div class="feedback-banner" id="fbBanner" style="margin-bottom:10px;"></div>
+              <div class="milestone-banner" id="msBanner" style="margin-bottom:10px;">
+                <strong>Snyggt! Du har klarat målet för 1. Begrepp.</strong>
+                <div class="milestone-actions">
+                  <button class="secondary-btn" id="btnStay" type="button">Fortsätt träna här</button>
+                  <button class="primary-btn" id="btnNextPhase" type="button">Gå till 2. Guidad →</button>
+                </div>
+              </div>
+              <div class="action-bar">
+                <button class="primary-btn" id="btnNextQ" type="button" style="display:none;">Nästa uppgift →</button>
+              </div>
+            </div>
+          `;
+
+          document.getElementById("choiceList").addEventListener("click", (e) => {
+            const btn = e.target.closest(".choice-btn");
+            if (!btn || state.solved) return;
+            handlePhase1Answer(Number(btn.dataset.idx));
+          });
+        }
+
+        document.getElementById("btnNextQ").addEventListener("click", () => {
+          state.solved = false;
+          state.problem = buildPhase1Problem();
+          renderPhase1Workspace();
+        });
+      }
+
+      function handlePhase1ClickDiagram(clickedPart) {
+        const p = state.problem;
+        const fb = document.getElementById("fbBanner");
+        if (clickedPart === p.targetConcept) {
+          state.solved = true;
+          state.consecutiveErrors = 0;
+          svgStage.innerHTML = p.renderSvg(p.targetConcept);
+          fb.className = "feedback-banner success show";
+          fb.textContent = `Rätt! Du klickade på ${p.targetConcept.toLowerCase()}.`;
+          advancePhase1Progress();
+        } else {
+          fb.className = "feedback-banner error show";
+          fb.textContent = p.targetConcept === "Area"
+            ? "Du klickade på ytterkanten (omkrets). Klicka inuti figuren för att markera area."
+            : "Du klickade på ytan inuti (area). Klicka på själva ytterkanten för att markera omkrets.";
+          registerMistake();
+        }
+      }
+
+      function handlePhase1Answer(idx) {
+        const p = state.problem;
+        const chosen = p.options[idx];
+        const buttons = workPane.querySelectorAll(".choice-btn");
+        const fb = document.getElementById("fbBanner");
+
+        if (chosen.correct) {
+          state.solved = true;
+          state.consecutiveErrors = 0;
+          buttons[idx].classList.add("correct");
+          buttons.forEach(b => (b.disabled = true));
+          fb.className = "feedback-banner success show";
+          fb.textContent = "Rätt! Tryck Enter eller klicka på Nästa uppgift.";
+          advancePhase1Progress();
+        } else {
+          buttons[idx].classList.add("wrong");
+          buttons[idx].disabled = true;
+          fb.className = "feedback-banner error show";
+          fb.textContent = chosen.text === "Omkrets"
+            ? "Inte riktigt. Omkrets är sträckan runt ytterkanten, men här handlar det om hela ytan inuti."
+            : "Inte riktigt. Area är hela ytan inuti, men här handlar det om sträckan runt ytterkanten.";
+          registerMistake();
+        }
+      }
+
+      function advancePhase1Progress() {
+        if (state.progress.p1 < PHASE_TARGETS.p1) {
+          state.progress.p1++;
+        }
+        if (state.progress.p1 >= PHASE_TARGETS.p1 && !state.unlocked.p2) {
+          state.unlocked.p2 = true;
+          showMilestone("p2");
+        }
+        updateHeaderUI();
+        document.getElementById("btnNextQ").style.display = "inline-block";
+      }
+
+      /* =========================================================
+         PHASE 2 (2. GUIDAD) & PHASE 3 (3. DIREKT) PROBLEM BUILDER
+         Uses verified opposite-rounding circle configurations!
+      ========================================================= */
+      function buildCalculationProblem(phaseKey) {
+        const subtype = pickFromDeck(phaseKey, [
+          "rect",
+          "tri_int",
+          "tri_ext",
+          "circle_d",
+          "circle_r"
+        ]);
+
+        if (subtype === "rect") {
+          const b = randInt(4, 9);
+          const h = randInt(2, 6);
+          const ansO = 2 * (b + h);
+          const ansA = b * h;
+          return {
+            phase: phaseKey,
+            subtype,
+            shapeName: "Rektangel",
+            ansO,
+            ansA,
+            tol: 0.05,
+            isCircle: false,
+            traps: { b, h },
+            stepO: {
+              needsFormula: false,
+              formulaOptions: shuffle([
+                { html: "<span>Ingen formel på bladet</span>", correct: true },
+                { html: "<span>O = 2πr</span>", correct: false },
+                { html: "<span>O = πd</span>", correct: false }
+              ])
+            },
+            stepA: {
+              needsFormula: true,
+              validSubst: [`${b}*${h}`, `${h}*${b}`],
+              calcRaw: ansA,
+              needsRounding: false,
+              formulaOptions: shuffle([
+                { html: `${SK_DIAG_PARA}<span>A = bh</span>`, correct: true },
+                { html: `${SK_DIAG_TRI}<span>A = <span class="frac"><span class="frac-top">bh</span><span class="frac-bot">2</span></span></span>`, correct: false },
+                { html: `${SK_DIAG_CIRC}<span>A = πr²</span>`, correct: false }
+              ])
+            },
+            caption: "Rektangel (mått i cm)",
+            renderSvg: (subStep) => {
+              const isO = subStep === "O";
+              return `<svg viewBox="0 0 420 320">
+                <rect x="85" y="85" width="250" height="150"
+                  fill="${isO ? "var(--shape-fill)" : "var(--area-fill)"}"
+                  stroke="${isO ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+                  stroke-width="${isO ? "4.5" : "2.5"}" />
+                <polyline points="85,222 98,222 98,235" fill="none" stroke="var(--text-main)" stroke-width="2" />
+                <text x="210" y="262" text-anchor="middle" fill="var(--text-main)" font-size="17" font-weight="700">${b} cm</text>
+                <text x="72" y="165" text-anchor="end" fill="var(--text-main)" font-size="17" font-weight="700">${h} cm</text>
+              </svg>`;
+            }
+          };
+        }
+
+        if (subtype === "tri_int") {
+          const b = [6, 8, 10][randInt(0, 2)];
+          const h = [4, 5, 6, 7][randInt(0, 3)];
+          const s1 = h + 2;
+          const s2 = h + 1;
+          const ansO = b + s1 + s2;
+          const ansA = (b * h) / 2;
+          return {
+            phase: phaseKey,
+            subtype,
+            shapeName: "Triangel",
+            ansO,
+            ansA,
+            tol: 0.1,
+            isCircle: false,
+            traps: { b, h, s1, s2, forgotDiv2: b * h },
+            stepO: {
+              needsFormula: false,
+              formulaOptions: shuffle([
+                { html: "<span>Ingen formel på bladet</span>", correct: true },
+                { html: "<span>O = 2πr</span>", correct: false },
+                { html: "<span>O = πd</span>", correct: false }
+              ])
+            },
+            stepA: {
+              needsFormula: true,
+              validSubst: [`(${b}*${h})/2`, `${b}*${h}/2`, `${h}*${b}/2`],
+              calcRaw: ansA,
+              needsRounding: false,
+              formulaOptions: shuffle([
+                { html: `${SK_DIAG_TRI}<span>A = <span class="frac"><span class="frac-top">bh</span><span class="frac-bot">2</span></span></span>`, correct: true },
+                { html: `${SK_DIAG_PARA}<span>A = bh</span>`, correct: false },
+                { html: `${SK_DIAG_CIRC}<span>A = πr²</span>`, correct: false }
+              ])
+            },
+            caption: "Triangel (mått i cm)",
+            renderSvg: (subStep) => {
+              const isO = subStep === "O";
+              return `<svg viewBox="0 0 420 320">
+                <polygon points="75,250 345,250 245,65"
+                  fill="${isO ? "var(--shape-fill)" : "var(--area-fill)"}"
+                  stroke="${isO ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+                  stroke-width="${isO ? "4.5" : "2.5"}" />
+                <line x1="245" y1="65" x2="245" y2="250" stroke="var(--text-main)" stroke-width="2" stroke-dasharray="6 4" />
+                <polyline points="245,237 258,237 258,250" fill="none" stroke="var(--text-main)" stroke-width="2" />
+                <text x="210" y="276" text-anchor="middle" fill="var(--text-main)" font-size="17" font-weight="700">${b}</text>
+                <text x="145" y="152" text-anchor="end" fill="var(--text-main)" font-size="17" font-weight="700">${s1}</text>
+                <text x="308" y="152" text-anchor="start" fill="var(--text-main)" font-size="17" font-weight="700">${s2}</text>
+                <text x="236" y="172" text-anchor="end" fill="var(--text-main)" font-size="17" font-weight="700">${h}</text>
+              </svg>`;
+            }
+          };
+        }
+
+        if (subtype === "tri_ext") {
+          const b = [4, 5, 6][randInt(0, 2)];
+          const h = [3, 4, 5][randInt(0, 2)];
+          const s1 = b + h;
+          const s2 = h + 1;
+          const ansO = b + s1 + s2;
+          const ansA = (b * h) / 2;
+          return {
+            phase: phaseKey,
+            subtype,
+            shapeName: "Triangel",
+            ansO,
+            ansA,
+            tol: 0.1,
+            isCircle: false,
+            traps: { b, h, s1, s2, forgotDiv2: b * h },
+            stepO: {
+              needsFormula: false,
+              formulaOptions: shuffle([
+                { html: "<span>Ingen formel på bladet</span>", correct: true },
+                { html: "<span>O = 2πr</span>", correct: false },
+                { html: "<span>O = πd</span>", correct: false }
+              ])
+            },
+            stepA: {
+              needsFormula: true,
+              validSubst: [`(${b}*${h})/2`, `${b}*${h}/2`, `${h}*${b}/2`],
+              calcRaw: ansA,
+              needsRounding: false,
+              formulaOptions: shuffle([
+                { html: `${SK_DIAG_TRI}<span>A = <span class="frac"><span class="frac-top">bh</span><span class="frac-bot">2</span></span></span>`, correct: true },
+                { html: `${SK_DIAG_PARA}<span>A = bh</span>`, correct: false },
+                { html: `${SK_DIAG_CIRC}<span>A = πr²</span>`, correct: false }
+              ])
+            },
+            caption: "Trubbvinklig triangel (mått i cm)",
+            renderSvg: (subStep) => {
+              const isO = subStep === "O";
+              return `<svg viewBox="0 0 420 320">
+                <polygon points="55,245 215,245 340,75"
+                  fill="${isO ? "var(--shape-fill)" : "var(--area-fill)"}"
+                  stroke="${isO ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+                  stroke-width="${isO ? "4.5" : "2.5"}" />
+                <line x1="215" y1="245" x2="340" y2="245" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5 4" />
+                <line x1="340" y1="75" x2="340" y2="245" stroke="var(--text-main)" stroke-width="2" stroke-dasharray="6 4" />
+                <polyline points="327,245 327,232 340,232" fill="none" stroke="var(--text-main)" stroke-width="2" />
+                <text x="135" y="272" text-anchor="middle" fill="var(--text-main)" font-size="17" font-weight="700">${b}</text>
+                <text x="182" y="150" text-anchor="end" fill="var(--text-main)" font-size="17" font-weight="700">${s1}</text>
+                <text x="265" y="168" text-anchor="end" fill="var(--text-main)" font-size="17" font-weight="700">${s2}</text>
+                <text x="352" y="165" text-anchor="start" fill="var(--text-main)" font-size="17" font-weight="700">${h}</text>
+              </svg>`;
+            }
+          };
+        }
+
+        // Circle problem from OPPOSITE_CIRCLE_CONFIGS (ensures O and A round in opposite directions)
+        const cfg = OPPOSITE_CIRCLE_CONFIGS[randInt(0, OPPOSITE_CIRCLE_CONFIGS.length - 1)];
+        const r = cfg.r;
+        const d = cfg.d;
+        const rawO = Math.round(Math.PI * d * 1000) / 1000;
+        const rawA = Math.round(Math.PI * r * r * 1000) / 1000;
+        const ansO = Math.round(Math.PI * d);
+        const ansA = Math.round(Math.PI * r * r);
+        const rStr = fmt(r);
+        const dStr = fmt(d);
+
+        if (subtype === "circle_d") {
+          return {
+            phase: phaseKey,
+            subtype,
+            shapeName: "Cirkel",
+            r,
+            d,
+            ansO,
+            ansA,
+            tol: 0.45,
+            isCircle: true,
+            traps: {
+              r, d, usedDinArea: Math.round(Math.PI * d * d), usedRinPerim: Math.round(Math.PI * r)
+            },
+            stepO: {
+              needsFormula: true,
+              validSubst: [`3.14*${d}`, `${d}*3.14`, `pi*${d}`, `${d}*pi`],
+              calcRaw: rawO,
+              needsRounding: true,
+              formulaOptions: shuffle([
+                { html: `${SK_DIAG_CIRC}<span>O = πd</span>`, correct: true },
+                { html: `${SK_DIAG_CIRC}<span>O = 2πr</span>`, correct: false },
+                { html: "<span>Ingen formel på bladet</span>", correct: false }
+              ])
+            },
+            stepA: {
+              needsRadiusStep: true,
+              needsFormula: true,
+              validSubst: [`3.14*${r}^2`, `3.14*${r}*${r}`, `pi*${r}^2`, `pi*${r}*${r}`],
+              calcRaw: rawA,
+              needsRounding: true,
+              formulaOptions: shuffle([
+                { html: `${SK_DIAG_CIRC}<span>A = πr²</span>`, correct: true },
+                { html: `${SK_DIAG_PARA}<span>A = bh</span>`, correct: false },
+                { html: `${SK_DIAG_TRI}<span>A = <span class="frac"><span class="frac-top">bh</span><span class="frac-bot">2</span></span></span>`, correct: false }
+              ])
+            },
+            caption: `Cirkel med diameter d = ${dStr} cm`,
+            renderSvg: (subStep) => {
+              const isO = subStep === "O";
+              return `<svg viewBox="0 0 420 320">
+                <circle cx="210" cy="160" r="102"
+                  fill="${isO ? "var(--shape-fill)" : "var(--area-fill)"}"
+                  stroke="${isO ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+                  stroke-width="${isO ? "4.5" : "2.5"}" />
+                <line x1="108" y1="160" x2="312" y2="160" stroke="var(--text-main)" stroke-width="2.5" />
+                <circle cx="210" cy="160" r="4" fill="var(--text-main)" />
+                <text x="210" y="148" text-anchor="middle" fill="var(--text-main)" font-size="17" font-weight="700">d = ${dStr} cm</text>
+              </svg>`;
+            }
+          };
+        }
+
+        // circle_r
+        return {
+          phase: phaseKey,
+          subtype,
+          shapeName: "Cirkel",
+          r,
+          d,
+          ansO,
+          ansA,
+          tol: 0.45,
+          isCircle: true,
+          traps: {
+            r, d, usedRinPerim: Math.round(Math.PI * r), usedDinArea: Math.round(Math.PI * d * d)
+          },
+          stepO: {
+            needsFormula: true,
+            validSubst: [`2*3.14*${r}`, `2*pi*${r}`, `3.14*2*${r}`, `pi*2*${r}`],
+            calcRaw: rawO,
+            needsRounding: true,
+            formulaOptions: shuffle([
+              { html: `${SK_DIAG_CIRC}<span>O = 2πr</span>`, correct: true },
+              { html: `${SK_DIAG_CIRC}<span>O = πd</span>`, correct: false },
+              { html: "<span>Ingen formel på bladet</span>", correct: false }
+            ])
+          },
+          stepA: {
+            needsRadiusStep: false,
+            needsFormula: true,
+            validSubst: [`3.14*${r}^2`, `3.14*${r}*${r}`, `pi*${r}^2`, `pi*${r}*${r}`],
+            calcRaw: rawA,
+            needsRounding: true,
+            formulaOptions: shuffle([
+              { html: `${SK_DIAG_CIRC}<span>A = πr²</span>`, correct: true },
+              { html: `${SK_DIAG_PARA}<span>A = bh</span>`, correct: false },
+              { html: `${SK_DIAG_TRI}<span>A = <span class="frac"><span class="frac-top">bh</span><span class="frac-bot">2</span></span></span>`, correct: false }
+            ])
+          },
+          caption: `Cirkel med radie r = ${rStr} cm`,
+          renderSvg: (subStep) => {
+            const isO = subStep === "O";
+            return `<svg viewBox="0 0 420 320">
+              <circle cx="210" cy="160" r="102"
+                fill="${isO ? "var(--shape-fill)" : "var(--area-fill)"}"
+                stroke="${isO ? "var(--perim-stroke)" : "var(--shape-stroke)"}"
+                stroke-width="${isO ? "4.5" : "2.5"}" />
+              <line x1="210" y1="160" x2="312" y2="160" stroke="var(--text-main)" stroke-width="2.5" />
+              <circle cx="210" cy="160" r="4" fill="var(--text-main)" />
+              <text x="261" y="148" text-anchor="middle" fill="var(--text-main)" font-size="17" font-weight="700">r = ${rStr} cm</text>
+            </svg>`;
+          }
+        };
+      }
+
+      /* =========================================================
+         SUBSTITUTION EXPRESSION EVALUATOR
+      ========================================================= */
+      function evaluateSubstitution(exprStr) {
+        if (!exprStr || typeof exprStr !== "string") return NaN;
+        let s = exprStr.trim().toLowerCase();
+        if (!s) return NaN;
+        // Strip leading "A =" or "O =" if typed by student
+        s = s.replace(/^[ao]\s*=\s*/i, "");
+        // Normalize Swedish decimal commas, middle dot, ×, ÷, ², π
+        s = s.replace(/,/g, ".");
+        s = s.replace(/[·×]/g, "*");
+        s = s.replace(/÷/g, "/");
+        s = s.replace(/\u2212/g, "-");
+        s = s.replace(/²/g, "**2");
+        s = s.replace(/\^2/g, "**2");
+        // Implicit multiplication before pi or parentheses
+        s = s.replace(/(\d)(π|pi)/g, "$1*3.141592653589793");
+        s = s.replace(/(π|pi)(\d)/g, "3.141592653589793*$2");
+        s = s.replace(/(π|pi)/g, "3.141592653589793");
+        s = s.replace(/(\d)\(/g, "$1*(");
+        s = s.replace(/\)(\d)/g, ")*$1");
+
+        // Allow only safe arithmetic characters
+        if (!/^[0-9+\-*/().\s]+$/.test(s)) return NaN;
+        // Must contain at least one operator so a raw final answer isn't accepted as substitution
+        if (!/[+\-*/]/.test(s)) return NaN;
+
+        try {
+          const val = Function('"use strict"; return (' + s + ");")();
+          return typeof val === "number" && isFinite(val) ? val : NaN;
+        } catch (err) {
+          return NaN;
+        }
+      }
+
+      /* =========================================================
+         PHASE 2 (GUIDED) & PHASE 3 (DIRECT) WORKSPACE RENDERERS
+      ========================================================= */
+      function initGuidedStepState() {
+        const p = state.problem;
+        const stepData = state.subStep === "O" ? p.stepO : p.stepA;
+        state.guided = {
+          stage: stepData.needsRadiusStep ? "radius" : "formula",
+          selectedFormula: null,
+          substText: "",
+          calcRawVal: null,
+          calcUnit: "",
+          showPosHelper: false,
+          roundingStruggle: false
+        };
+      }
+
+      function initDirectStepState() {
+        state.direct = {
+          selectedUnit: "",
+          showPosHelper: false,
+          posSampleVal: null,
+          roundingStruggle: false
+        };
+      }
+
+      function renderCalcLeftPane() {
+        const p = state.problem;
+        const isGuided = state.activeTab === "p2";
+        const isStepO = state.subStep === "O";
+
+        visualHeaderLabel.textContent = isGuided ? "2. Guidad" : "3. Direkt";
+
+        const showPos = isGuided ? state.guided.showPosHelper : state.direct.showPosHelper;
+        const sampleVal = isGuided
+          ? (state.guided.calcRawVal || (isStepO ? p.stepO.calcRaw : p.stepA.calcRaw))
+          : (state.direct.posSampleVal || (isStepO ? p.stepO.calcRaw : p.stepA.calcRaw));
+
+        if (showPos && sampleVal !== null && sampleVal !== undefined) {
+          visualControls.innerHTML = `<button class="tool-btn" id="btnToggleVisualView" type="button">📐 Visa figur</button>`;
+          svgStage.innerHTML = renderPositionssystemet(sampleVal);
+          visualCaption.textContent = "Avrunda till närmaste heltal";
+        } else {
+          const canShowPos = p.isCircle && (
+            (isGuided && state.guided.stage === "round") ||
+            (!isGuided && state.direct.posSampleVal !== null)
+          );
+          visualControls.innerHTML = canShowPos
+            ? `<button class="tool-btn" id="btnToggleVisualView" type="button">🔢 Positionssystemet</button>`
+            : "";
+          svgStage.innerHTML = p.renderSvg(state.subStep);
+          visualCaption.textContent = `${p.caption} – ${isStepO ? "Fokus: Omkrets (ytterkant)" : "Fokus: Area (yta inuti)"}`;
+        }
+
+        const toggleBtn = document.getElementById("btnToggleVisualView");
+        if (toggleBtn) {
+          toggleBtn.addEventListener("click", () => {
+            if (isGuided) {
+              state.guided.showPosHelper = !state.guided.showPosHelper;
+            } else {
+              state.direct.showPosHelper = !state.direct.showPosHelper;
+            }
+            renderCalcLeftPane();
+          });
+        }
+      }
+
+      function renderGuidedRightPane() {
+        const p = state.problem;
+        const isStepO = state.subStep === "O";
+        const stepData = isStepO ? p.stepO : p.stepA;
+        const g = state.guided;
+        const prefix = isStepO ? "O =" : "A =";
+
+        let stageHtml = "";
+
+        // Optional radius sub-step for circle area when diameter d is given
+        if (g.stage === "radius") {
+          stageHtml = `
+            <div class="work-box">
+              <div class="step-label">Försteg: Bestäm radien (r)</div>
+              <div style="font-size:0.9rem;color:var(--text-muted);">
+                Formeln för cirkelns area är A = πr². Diametern är d = ${fmt(p.d)} cm.
+              </div>
+              <div class="input-row">
+                <span class="prefix-lbl">r =</span>
+                <input class="num-input" id="inpRadius" type="text" inputmode="decimal" autocomplete="off" />
+                <span style="font-weight:700;">cm</span>
+              </div>
+            </div>
+          `;
+        } else {
+          // Completed radius badge if applicable
+          const radDoneHtml = stepData.needsRadiusStep
+            ? `<div class="work-box done-box" style="padding:7px 12px;font-size:0.9rem;">✓ Radie: <strong>r = ${fmt(p.r)} cm</strong></div>`
+            : "";
+
+          // Step 1: Choose formula (NO spoiler box, NO parenthetical hints)
+          const formulaSelected = g.selectedFormula !== null;
+          const formulaBoxHtml = !formulaSelected ? `
+            <div class="gate-section">
+              <div class="step-label">Steg 1: Välj rätt formel (titta i Formelbladet vid behov)</div>
+              <div class="formula-choices" id="formulaChoices">
+                ${stepData.formulaOptions.map((f, idx) => `
+                  <button class="f-choice" data-idx="${idx}" type="button">${f.html}</button>
+                `).join("")}
+              </div>
+            </div>
+          ` : `
+            <div class="work-box done-box" style="padding:7px 12px;font-size:0.9rem;">
+              ✓ Vald formel: <strong>${g.selectedFormula.html.replace(/<[^>]+>/g, " ").trim()}</strong>
+            </div>
+          `;
+
+          // Step 2: Substitution (only when formula is needed)
+          let substBoxHtml = "";
+          if (formulaSelected && stepData.needsFormula) {
+            if (g.stage === "subst") {
+              substBoxHtml = `
+                <div class="work-box">
+                  <div class="step-label">Steg 2: Visa insättning med figurens mått</div>
+                  <div class="input-row">
+                    <span class="prefix-lbl">${prefix}</span>
+                    <input class="expr-input" id="inpSubst" type="text" autocomplete="off" />
+                  </div>
+                  <div class="sym-bar" id="symBar">
+                    <button class="sym-btn" data-sym=" · " type="button">·</button>
+                    <button class="sym-btn" data-sym="π" type="button">π</button>
+                    <button class="sym-btn" data-sym=" / " type="button">/</button>
+                    <button class="sym-btn" data-sym="²" type="button">²</button>
+                  </div>
+                </div>
+              `;
+            } else {
+              substBoxHtml = `
+                <div class="work-box done-box" style="padding:7px 12px;font-size:0.9rem;">
+                  ✓ Insättning: <strong>${prefix} ${g.substText}</strong>
+                </div>
+              `;
+            }
+          }
+
+          // Step 3: Calculator result + unit
+          let calcBoxHtml = "";
+          if (formulaSelected && (g.stage === "calc" || g.stage === "round")) {
+            const stepNum = stepData.needsFormula ? "Steg 3" : "Steg 2";
+            if (g.stage === "calc") {
+              calcBoxHtml = `
+                <div class="work-box">
+                  <div class="step-label">${stepNum}: ${stepData.needsFormula ? "Skriv miniräknarens svar och välj enhet" : "Beräkna och välj enhet"}</div>
+                  <div class="input-row">
+                    <span class="prefix-lbl">${prefix}</span>
+                    <input class="num-input" id="inpCalcVal" type="text" inputmode="decimal" autocomplete="off" />
+                    <div class="unit-group" id="unitGroup">
+                      <button class="unit-btn ${g.calcUnit === "cm" ? "active" : ""}" data-unit="cm" type="button">cm</button>
+                      <button class="unit-btn ${g.calcUnit === "cm²" ? "active" : ""}" data-unit="cm²" type="button">cm²</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            } else {
+              calcBoxHtml = `
+                <div class="work-box done-box" style="padding:7px 12px;font-size:0.9rem;">
+                  ✓ Miniräknarens svar: <strong>${prefix} ${fmt(g.calcRawVal)} ${g.calcUnit}</strong>
+                </div>
+              `;
+            }
+          }
+
+          // Step 4: Rounding to nearest integer (for circles)
+          let roundBoxHtml = "";
+          if (g.stage === "round") {
+            roundBoxHtml = `
+              <div class="work-box">
+                <div class="step-label">Steg 4: Avrunda till närmaste heltal</div>
+                <div class="input-row">
+                  <span class="prefix-lbl">${prefix}</span>
+                  <input class="num-input" id="inpRoundVal" type="text" inputmode="numeric" autocomplete="off" />
+                  <span style="font-weight:700;">${g.calcUnit}</span>
+                </div>
+              </div>
+            `;
+          }
+
+          stageHtml = `${radDoneHtml}${formulaBoxHtml}${substBoxHtml}${calcBoxHtml}${roundBoxHtml}`;
+        }
+
+        const showSubmitBtn = !state.solved && g.stage !== "formula";
+
+        workPane.innerHTML = `
+          <div>
+            <div class="step-tracker">
+              <span class="step-pill ${isStepO ? "current" : "done"}">
+                ${isStepO ? "1. Omkrets (O)" : `✓ O = ${fmt(p.ansO)} cm`}
+              </span>
+              <span class="step-pill ${!isStepO ? "current" : ""}">
+                2. Area (A)
+              </span>
+            </div>
+
+            <div class="prompt-card" style="margin-bottom:10px;">
+              <p class="prompt-main">${isStepO ? "Del 1: Bestäm figurens omkrets (O)." : "Del 2: Bestäm figurens area (A)."}</p>
+              <p class="prompt-sub">${stepData.needsFormula ? "Använd Formelbladet vid behov och följ stegen nedan." : "Titta i Formelbladet och beräkna omkretsen."}</p>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              ${stageHtml}
+            </div>
+          </div>
+
+          <div>
+            <div class="feedback-banner" id="fbBanner" style="margin-bottom:8px;"></div>
+            <div class="milestone-banner" id="msBanner" style="margin-bottom:8px;">
+              <strong>Målet uppnått! Bra jobbat!</strong>
+              <div class="milestone-actions">
+                <button class="secondary-btn" id="btnStay" type="button">Fortsätt träna här</button>
+                <button class="primary-btn" id="btnNextPhase" type="button">Gå till 3. Direkt →</button>
+              </div>
+            </div>
+            <div class="action-bar">
+              ${showSubmitBtn ? '<button class="primary-btn" id="btnSubmit" type="button">Rätta svar</button>' : ""}
+              <button class="primary-btn" id="btnNextStep" type="button" style="display:none;">Fortsätt till Area (A) →</button>
+              <button class="primary-btn" id="btnNextQ" type="button" style="display:none;">Nästa figur →</button>
+            </div>
+          </div>
+        `;
+
+        wireGuidedHandlers();
+      }
+
+      function wireGuidedHandlers() {
+        const p = state.problem;
+        const isStepO = state.subStep === "O";
+        const stepData = isStepO ? p.stepO : p.stepA;
+        const g = state.guided;
+
+        const formulaContainer = document.getElementById("formulaChoices");
+        if (formulaContainer) {
+          formulaContainer.addEventListener("click", (e) => {
+            const btn = e.target.closest(".f-choice");
+            if (!btn || g.selectedFormula) return;
+            const idx = Number(btn.dataset.idx);
+            const opt = stepData.formulaOptions[idx];
+            const fb = document.getElementById("fbBanner");
+            if (opt.correct) {
+              g.selectedFormula = opt;
+              g.stage = stepData.needsFormula ? "subst" : "calc";
+              state.consecutiveErrors = 0;
+              renderGuidedRightPane();
+            } else {
+              btn.classList.add("wrong");
+              btn.disabled = true;
+              fb.className = "feedback-banner error show";
+              fb.textContent = "Inte rätt val. Öppna Formelblad uppe till höger och jämför figuren och måtten.";
+              pulseFormulaBtn();
+              registerMistake();
+            }
+          });
+        }
+
+        const symBar = document.getElementById("symBar");
+        const inpSubst = document.getElementById("inpSubst");
+        if (symBar && inpSubst) {
+          symBar.addEventListener("click", (e) => {
+            const btn = e.target.closest(".sym-btn");
+            if (!btn) return;
+            const start = inpSubst.selectionStart || inpSubst.value.length;
+            const end = inpSubst.selectionEnd || inpSubst.value.length;
+            const sym = btn.dataset.sym;
+            inpSubst.value = inpSubst.value.slice(0, start) + sym + inpSubst.value.slice(end);
+            inpSubst.focus();
+            inpSubst.setSelectionRange(start + sym.length, start + sym.length);
+          });
+          inpSubst.focus();
+        }
+
+        const unitGroup = document.getElementById("unitGroup");
+        if (unitGroup) {
+          unitGroup.addEventListener("click", (e) => {
+            const btn = e.target.closest(".unit-btn");
+            if (!btn || state.solved) return;
+            unitGroup.querySelectorAll(".unit-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            g.calcUnit = btn.dataset.unit;
+          });
+        }
+
+        const inpRadius = document.getElementById("inpRadius");
+        if (inpRadius) inpRadius.focus();
+        const inpCalcVal = document.getElementById("inpCalcVal");
+        if (inpCalcVal) inpCalcVal.focus();
+        const inpRoundVal = document.getElementById("inpRoundVal");
+        if (inpRoundVal) inpRoundVal.focus();
+
+        const btnSubmit = document.getElementById("btnSubmit");
+        if (btnSubmit) {
+          btnSubmit.addEventListener("click", handleGuidedSubmit);
+        }
+
+        document.getElementById("btnNextStep").addEventListener("click", () => {
+          state.subStep = "A";
+          state.solved = false;
+          initGuidedStepState();
+          renderCalcLeftPane();
+          renderGuidedRightPane();
+        });
+
+        document.getElementById("btnNextQ").addEventListener("click", () => {
+          state.subStep = "O";
+          state.solved = false;
+          state.problem = buildCalculationProblem("p2");
+          initGuidedStepState();
+          renderCalcLeftPane();
+          renderGuidedRightPane();
+        });
+      }
+
+      function handleGuidedSubmit() {
+        if (state.solved) return;
+        const p = state.problem;
+        const isStepO = state.subStep === "O";
+        const stepData = isStepO ? p.stepO : p.stepA;
+        const g = state.guided;
+        const fb = document.getElementById("fbBanner");
+
+        // Stage 0: Radius sub-step
+        if (g.stage === "radius") {
+          const rVal = parseNum(document.getElementById("inpRadius").value);
+          if (isNaN(rVal)) {
+            fb.className = "feedback-banner error show";
+            fb.textContent = "Skriv radiens värde i cm.";
+            return;
+          }
+          if (approxEq(rVal, p.r, 0.05)) {
+            state.consecutiveErrors = 0;
+            g.stage = "formula";
+            renderGuidedRightPane();
+          } else {
+            showDiagError(`Radien är hälften av diametern: r = ${fmt(p.d)} / 2.`);
+          }
+          return;
+        }
+
+        // Stage 2: Substitution check
+        if (g.stage === "subst") {
+          const rawExpr = document.getElementById("inpSubst").value.trim();
+          const evalVal = evaluateSubstitution(rawExpr);
+          if (isNaN(evalVal)) {
+            fb.className = "feedback-banner error show";
+            fb.textContent = "Skriv in en uträkning där du sätter in figurens tal i formeln (använd knapparna ·, π, /, ²).";
+            return;
+          }
+          if (approxEq(evalVal, stepData.calcRaw, 0.25)) {
+            state.consecutiveErrors = 0;
+            g.substText = rawExpr;
+            g.stage = "calc";
+            renderGuidedRightPane();
+          } else {
+            showDiagError("Kontrollera talen du satte in i formeln och jämför med figurens mått.");
+          }
+          return;
+        }
+
+        // Stage 3: Calculator result + unit
+        if (g.stage === "calc") {
+          const val = parseNum(document.getElementById("inpCalcVal").value);
+          const expectedUnit = isStepO ? "cm" : "cm²";
+          if (isNaN(val) || !g.calcUnit) {
+            fb.className = "feedback-banner error show";
+            fb.textContent = "Skriv in svaret och välj rätt enhet (cm eller cm²).";
+            return;
+          }
+
+          const expectedRaw = stepData.calcRaw;
+          // Accept either 3.14-based or Math.PI-based decimal output (or already rounded integer)
+          const rawPi314 = p.isCircle
+            ? (isStepO ? 3.14 * p.d : 3.14 * p.r * p.r)
+            : expectedRaw;
+
+          const numMatches = approxEq(val, expectedRaw, 0.18) || approxEq(val, rawPi314, 0.18);
+          const unitMatches = g.calcUnit === expectedUnit;
+
+          if (!numMatches) {
+            if (!isStepO && p.subtype.startsWith("tri_") && approxEq(val, p.traps.forgotDiv2, 0.1)) {
+              showDiagError("Kom ihåg att dividera med 2 i triangelns areaformel.");
+              return;
+            }
+            showDiagError("Kontrollera uträkningen på miniräknaren.");
+            return;
+          }
+          if (!unitMatches) {
+            showDiagError(isStepO
+              ? "Talet stämmer, men omkrets är en längd och har enheten cm."
+              : "Talet stämmer, men area är en yta och har enheten cm².");
+            return;
+          }
+
+          state.consecutiveErrors = 0;
+          g.calcRawVal = val;
+
+          if (stepData.needsRounding) {
+            g.stage = "round";
+            g.showPosHelper = true;
+            renderCalcLeftPane();
+            renderGuidedRightPane();
+          } else {
+            finishGuidedPart();
+          }
+          return;
+        }
+
+        // Stage 4: Rounding to nearest integer
+        if (g.stage === "round") {
+          const rVal = parseNum(document.getElementById("inpRoundVal").value);
+          const expectedInt = isStepO ? p.ansO : p.ansA;
+          if (isNaN(rVal) || !Number.isInteger(rVal)) {
+            fb.className = "feedback-banner error show";
+            fb.textContent = "Skriv ett heltal (utan decimaler).";
+            return;
+          }
+          if (rVal === expectedInt) {
+            state.consecutiveErrors = 0;
+            g.showPosHelper = false;
+            renderCalcLeftPane();
+            finishGuidedPart();
+          } else {
+            state.unlocked.p2b = true;
+            updateHeaderUI();
+            fb.className = "feedback-banner error show";
+            fb.innerHTML = `Inte riktigt. Titta på tiondelssiffran i <strong>Positionssystemet</strong> till vänster (0–4 nedåt, 5–9 uppåt).<br>
+              <button class="inline-practice-btn" id="btnJumpP2b" type="button">Träna extra på avrundning i 2b. Avrundning (valfri) →</button>`;
+            document.getElementById("btnJumpP2b").addEventListener("click", () => switchTab("p2b"));
+            registerMistake();
+          }
+        }
+      }
+
+      function finishGuidedPart() {
+        const p = state.problem;
+        const isStepO = state.subStep === "O";
+        const fb = document.getElementById("fbBanner");
+        state.solved = true;
+
+        const subBtn = document.getElementById("btnSubmit");
+        if (subBtn) subBtn.style.display = "none";
+
+        if (isStepO) {
+          fb.className = "feedback-banner success show";
+          fb.textContent = `Rätt! Omkretsen O = ${fmt(p.ansO)} cm. Nu räknar vi ut arean på samma figur.`;
+          document.getElementById("btnNextStep").style.display = "inline-block";
+        } else {
+          fb.className = "feedback-banner success show";
+          fb.textContent = `Helt rätt! O = ${fmt(p.ansO)} cm och A = ${fmt(p.ansA)} cm².`;
+          document.getElementById("btnNextQ").style.display = "inline-block";
+
+          if (state.progress.p2 < PHASE_TARGETS.p2) {
+            state.progress.p2++;
+          }
+          if (state.progress.p2 >= PHASE_TARGETS.p2 && !state.unlocked.p3) {
+            state.unlocked.p3 = true;
+            state.unlocked.p2b = true;
+            showMilestone("p3");
+          }
+          updateHeaderUI();
+        }
+      }
+
+      /* =========================================================
+         PHASE 3: 3. DIREKT (With Notebook Instruction & Auto Rounding Pop-up)
+      ========================================================= */
+      function renderDirectRightPane() {
+        const p = state.problem;
+        const isStepO = state.subStep === "O";
+        const prefix = isStepO ? "O =" : "A =";
+
+        workPane.innerHTML = `
+          <div>
+            <div class="step-tracker">
+              <span class="step-pill ${isStepO ? "current" : "done"}">
+                ${isStepO ? "1. Omkrets (O)" : `✓ O = ${fmt(p.ansO)} cm`}
+              </span>
+              <span class="step-pill ${!isStepO ? "current" : ""}">
+                2. Area (A)
+              </span>
+            </div>
+
+            <div class="prompt-card" style="margin-bottom:12px;">
+              <p class="prompt-main">${isStepO ? "Del 1: Beräkna figurens omkrets (O)." : "Del 2: Beräkna figurens area (A)."}</p>
+              <p class="prompt-sub">${p.isCircle ? "Avrunda ditt slutliga svar till närmaste heltal." : "Beräkna exakt värde och välj rätt enhet."}</p>
+              <div class="notebook-badge">📓 Gör dina uträkningar i din anteckningsbok och skriv in ditt svar nedan.</div>
+            </div>
+
+            <div class="work-box">
+              <div class="input-row">
+                <span class="prefix-lbl">${prefix}</span>
+                <input class="num-input" id="inpDirectVal" type="text" inputmode="decimal" autocomplete="off" />
+                <div class="unit-group" id="unitGroup">
+                  <button class="unit-btn ${state.direct.selectedUnit === "cm" ? "active" : ""}" data-unit="cm" type="button">cm</button>
+                  <button class="unit-btn ${state.direct.selectedUnit === "cm²" ? "active" : ""}" data-unit="cm²" type="button">cm²</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="feedback-banner" id="fbBanner" style="margin-bottom:8px;"></div>
+            <div class="milestone-banner" id="msBanner" style="margin-bottom:8px;">
+              <strong>Grattis! Du har klarat målet för 3. Direkt!</strong>
+              <div class="milestone-actions">
+                <button class="secondary-btn" id="btnStay" type="button">Fortsätt träna här</button>
+              </div>
+            </div>
+            <div class="action-bar">
+              <button class="primary-btn" id="btnSubmit" type="button">Rätta svar</button>
+              <button class="primary-btn" id="btnNextStep" type="button" style="display:none;">Fortsätt till Area (A) →</button>
+              <button class="primary-btn" id="btnNextQ" type="button" style="display:none;">Nästa figur →</button>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("unitGroup").addEventListener("click", (e) => {
+          const btn = e.target.closest(".unit-btn");
+          if (!btn || state.solved) return;
+          document.querySelectorAll("#unitGroup .unit-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.direct.selectedUnit = btn.dataset.unit;
+        });
+
+        document.getElementById("btnSubmit").addEventListener("click", handleDirectSubmit);
+
+        document.getElementById("btnNextStep").addEventListener("click", () => {
+          state.subStep = "A";
+          state.solved = false;
+          initDirectStepState();
+          renderCalcLeftPane();
+          renderDirectRightPane();
+        });
+
+        document.getElementById("btnNextQ").addEventListener("click", () => {
+          state.subStep = "O";
+          state.solved = false;
+          state.problem = buildCalculationProblem("p3");
+          initDirectStepState();
+          renderCalcLeftPane();
+          renderDirectRightPane();
+        });
+
+        document.getElementById("inpDirectVal").focus();
+      }
+
+      function handleDirectSubmit() {
+        if (state.solved) return;
+        const p = state.problem;
+        const isStepO = state.subStep === "O";
+        const stepData = isStepO ? p.stepO : p.stepA;
+        const fb = document.getElementById("fbBanner");
+        const val = parseNum(document.getElementById("inpDirectVal").value);
+
+        if (isNaN(val) || !state.direct.selectedUnit) {
+          fb.className = "feedback-banner error show";
+          fb.textContent = "Skriv ett talvärde och välj rätt enhet (cm eller cm²).";
+          return;
+        }
+
+        const expectedVal = isStepO ? p.ansO : p.ansA;
+        const expectedUnit = isStepO ? "cm" : "cm²";
+
+        // Circle rounding check: if student entered unrounded decimal or off-by-1 rounding error
+        if (p.isCircle) {
+          const rawVal = stepData.calcRaw;
+          const isUnrounded = !Number.isInteger(val) && Math.abs(val - rawVal) < 0.6;
+          const isOffByOne = Number.isInteger(val) && Math.abs(val - expectedVal) === 1;
+
+          if (isUnrounded || isOffByOne) {
+            state.direct.posSampleVal = rawVal;
+            state.direct.showPosHelper = true;
+            state.unlocked.p2b = true;
+            updateHeaderUI();
+            renderCalcLeftPane();
+
+            fb.className = "feedback-banner error show";
+            fb.innerHTML = `${isUnrounded ? "Du skrev ett decimaltal. Avrunda till närmaste heltal!" : "Kontrollera avrundningen till närmaste heltal."} Titta på <strong>Positionssystemet</strong> till vänster.<br>
+              <button class="inline-practice-btn" id="btnJumpP2bDirect" type="button">Träna extra på avrundning i 2b. Avrundning (valfri) →</button>`;
+            document.getElementById("btnJumpP2bDirect").addEventListener("click", () => switchTab("p2b"));
+            registerMistake();
+            return;
+          }
+        }
+
+        const numOk = approxEq(val, expectedVal, p.tol);
+        const unitOk = state.direct.selectedUnit === expectedUnit;
+
+        if (numOk && unitOk) {
+          state.solved = true;
+          state.consecutiveErrors = 0;
+          state.direct.showPosHelper = false;
+          renderCalcLeftPane();
+
+          document.getElementById("inpDirectVal").disabled = true;
+          document.getElementById("btnSubmit").style.display = "none";
+
+          if (isStepO) {
+            fb.className = "feedback-banner success show";
+            fb.textContent = `Rätt! Omkretsen O = ${fmt(p.ansO)} cm. Nu räknar vi ut arean på samma figur.`;
+            document.getElementById("btnNextStep").style.display = "inline-block";
+          } else {
+            fb.className = "feedback-banner success show";
+            fb.textContent = `Helt rätt! O = ${fmt(p.ansO)} cm och A = ${fmt(p.ansA)} cm².`;
+            document.getElementById("btnNextQ").style.display = "inline-block";
+
+            if (state.progress.p3 < PHASE_TARGETS.p3) {
+              state.progress.p3++;
+            }
+            if (state.progress.p3 >= PHASE_TARGETS.p3) {
+              showMilestone(null);
+            }
+            updateHeaderUI();
+          }
+          return;
+        }
+
+        // Swapped Area/Omkrets
+        if (isStepO && approxEq(val, p.ansA, p.tol)) {
+          showDiagError("Det där är figurens area (ytan inuti). Nu ska du räkna ut omkretsen (ytterkanten).");
+          return;
+        }
+        if (!isStepO && approxEq(val, p.ansO, p.tol)) {
+          showDiagError("Det där är figurens omkrets (ytterkanten). Nu ska du räkna ut arean (ytan inuti).");
+          return;
+        }
+
+        // Triangle traps
+        if (!isStepO && p.subtype.startsWith("tri_") && approxEq(val, p.traps.forgotDiv2, p.tol)) {
+          showDiagError("Kom ihåg att dividera med 2: A = (b · h) / 2.");
+          return;
+        }
+
+        // Circle traps
+        if (p.subtype.startsWith("circle_")) {
+          if (!isStepO && approxEq(val, p.traps.usedDinArea, 1.0)) {
+            showDiagError("I A = πr² är r radien (halva diametern).");
+            return;
+          }
+          if (isStepO && approxEq(val, p.traps.usedRinPerim, 1.0)) {
+            showDiagError("Titta i Formelbladet: O = 2πr = πd.");
+            return;
+          }
+        }
+
+        if (numOk && !unitOk) {
+          showDiagError(isStepO
+            ? "Talvärdet stämmer, men omkrets har enheten cm."
+            : "Talvärdet stämmer, men area har enheten cm².");
+          return;
+        }
+
+        showDiagError("Kontrollera din uträkning i anteckningsboken och jämför med Formelbladet.");
+      }
+
+      /* =========================================================
+         OPTIONAL PHASE 2B: 2b. Avrundning (valfri)
+         Alternates cleanly between rounding UP and rounding DOWN
+      ========================================================= */
+      function buildRoundingTask() {
+        const nextDir = state.p2b.lastDir === "down" ? "up" : "down";
+        state.p2b.lastDir = nextDir;
+
+        const intBase = randInt(12, 260);
+        const d1 = nextDir === "up" ? randInt(5, 9) : randInt(0, 4);
+        const d2 = randInt(1, 9);
+        const d3 = randInt(1, 9);
+        const rawNum = Number(`${intBase}.${d1}${d2}${d3}`);
+        const expectedInt = nextDir === "up" ? intBase + 1 : intBase;
+
+        state.p2b.rawNum = rawNum;
+        state.p2b.expectedInt = expectedInt;
+        state.p2b.dir = nextDir;
+        state.p2b.solved = false;
+      }
+
+      function renderPhase2bWorkspace() {
+        visualHeaderLabel.textContent = "2b. Avrundning (valfri)";
+        visualControls.innerHTML = "";
+        svgStage.innerHTML = renderPositionssystemet(state.p2b.rawNum);
+        visualCaption.textContent = "Avrunda till närmaste heltal";
+
+        workPane.innerHTML = `
+          <div>
+            <div class="prompt-card" style="margin-bottom:12px;">
+              <p class="prompt-main">Avrunda talet ${fmt(state.p2b.rawNum, 3)} till närmaste heltal.</p>
+              <p class="prompt-sub">Använd <strong>Positionssystemet</strong> till vänster för att avgöra om du ska avrunda nedåt eller uppåt.</p>
+            </div>
+
+            <div class="work-box">
+              <div class="input-row">
+                <span class="prefix-lbl">Avrundat heltal =</span>
+                <input class="num-input" id="inpP2bVal" type="text" inputmode="numeric" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="feedback-banner" id="fbBanner" style="margin-bottom:10px;"></div>
+            <div class="action-bar" style="justify-content:space-between;">
+              <div style="display:flex;gap:8px;">
+                <button class="secondary-btn" id="btnBackP2" type="button">← Tillbaka till 2. Guidad</button>
+                ${(state.unlocked.p3 || state.teacherMode) ? '<button class="secondary-btn" id="btnGoP3" type="button">Gå till 3. Direkt →</button>' : ""}
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="primary-btn" id="btnSubmitP2b" type="button">Rätta svar</button>
+                <button class="primary-btn" id="btnNextP2b" type="button" style="display:none;">Nästa tal →</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("btnBackP2").addEventListener("click", () => switchTab("p2"));
+        const btnGoP3 = document.getElementById("btnGoP3");
+        if (btnGoP3) btnGoP3.addEventListener("click", () => switchTab("p3"));
+
+        document.getElementById("btnSubmitP2b").addEventListener("click", () => {
+          if (state.p2b.solved) return;
+          const fb = document.getElementById("fbBanner");
+          const val = parseNum(document.getElementById("inpP2bVal").value);
+          if (isNaN(val) || !Number.isInteger(val)) {
+            fb.className = "feedback-banner error show";
+            fb.textContent = "Skriv ett heltal (utan kommatecken).";
+            return;
+          }
+          if (val === state.p2b.expectedInt) {
+            state.p2b.solved = true;
+            state.consecutiveErrors = 0;
+            state.progress.p2b++;
+            updateHeaderUI();
+
+            document.getElementById("inpP2bVal").disabled = true;
+            document.getElementById("btnSubmitP2b").style.display = "none";
+            document.getElementById("btnNextP2b").style.display = "inline-block";
+
+            fb.className = "feedback-banner success show";
+            fb.textContent = `Rätt! ${fmt(state.p2b.rawNum, 3)} avrundas ${state.p2b.dir === "up" ? "uppåt" : "nedåt"} till ${state.p2b.expectedInt}.`;
+          } else {
+            fb.className = "feedback-banner error show";
+            fb.textContent = state.p2b.dir === "up"
+              ? "Tiondelssiffran är 5–9, så vi ska avrunda uppåt (höja entalet med 1)."
+              : "Tiondelssiffran är 0–4, så vi ska avrunda nedåt (behålla entalet).";
+            registerMistake();
+          }
+        });
+
+        document.getElementById("btnNextP2b").addEventListener("click", () => {
+          buildRoundingTask();
+          renderPhase2bWorkspace();
+        });
+
+        document.getElementById("inpP2bVal").focus();
+      }
+
+      /* =========================================================
+         TAB SWITCHING & SHARED FEEDBACK HELPERS
+      ========================================================= */
+      function switchTab(tab) {
+        state.activeTab = tab;
+        state.solved = false;
+        state.subStep = "O";
+        updateHeaderUI();
+
+        if (tab === "intro") {
+          renderIntroWorkspace();
+        } else if (tab === "p1") {
+          state.problem = buildPhase1Problem();
+          renderPhase1Workspace();
+        } else if (tab === "p2") {
+          state.problem = buildCalculationProblem("p2");
+          initGuidedStepState();
+          renderCalcLeftPane();
+          renderGuidedRightPane();
+        } else if (tab === "p2b") {
+          buildRoundingTask();
+          renderPhase2bWorkspace();
+        } else if (tab === "p3") {
+          state.problem = buildCalculationProblem("p3");
+          initDirectStepState();
+          renderCalcLeftPane();
+          renderDirectRightPane();
+        }
+      }
+
+      function showDiagError(msg) {
+        const fb = document.getElementById("fbBanner");
+        fb.className = "feedback-banner error show";
+        fb.textContent = msg;
+        pulseFormulaBtn();
+        registerMistake();
+      }
+
+      function pulseFormulaBtn() {
+        btnFormula.classList.remove("pulse-amber");
+        void btnFormula.offsetWidth;
+        btnFormula.classList.add("pulse-amber");
+      }
+
+      function showMilestone(nextTab) {
+        const ms = document.getElementById("msBanner");
+        if (!ms) return;
+        ms.classList.add("show");
+        const nextBtn = document.getElementById("btnNextPhase");
+        if (!nextBtn) return;
+        if (!nextTab) {
+          nextBtn.style.display = "none";
+          ms.querySelector("strong").textContent = "Grattis! Du har klarat hela övningshäftet!";
+        } else {
+          nextBtn.onclick = () => switchTab(nextTab);
+        }
+        document.getElementById("btnStay").onclick = () => {
+          ms.classList.remove("show");
+        };
+      }
+
+      /* =========================================================
+         4-MISTAKE SCREEN LOCK & SILENT TEACHER SHORTCUTS
+      ========================================================= */
+      function registerMistake() {
+        if (state.teacherMode) return;
+        state.consecutiveErrors++;
+        if (state.consecutiveErrors >= 4) {
+          triggerScreenLock();
+        }
+      }
+
+      function triggerScreenLock() {
+        state.lockRemaining = 120;
+        const overlay = document.getElementById("lockOverlay");
+        const timerEl = document.getElementById("lockTimer");
+        overlay.classList.add("show");
+
+        const renderTime = () => {
+          const m = String(Math.floor(state.lockRemaining / 60)).padStart(2, "0");
+          const s = String(state.lockRemaining % 60).padStart(2, "0");
+          timerEl.textContent = `${m}:${s}`;
+        };
+        renderTime();
+
+        clearInterval(state.lockInterval);
+        state.lockInterval = setInterval(() => {
+          state.lockRemaining--;
+          if (state.lockRemaining <= 0) {
+            unlockScreen();
+          } else {
+            renderTime();
+          }
+        }, 1000);
+      }
+
+      function unlockScreen() {
+        clearInterval(state.lockInterval);
+        state.lockInterval = null;
+        state.consecutiveErrors = 0;
+        document.getElementById("lockOverlay").classList.remove("show");
+      }
+
+      document.getElementById("btnTeacherUnlock").addEventListener("click", unlockScreen);
+
+      document.addEventListener("keydown", (e) => {
+        // Silent Teacher Shortcut: Shift + L (no visible badge)
+        if (e.shiftKey && e.key.toUpperCase() === "L") {
+          e.preventDefault();
+          if (document.getElementById("lockOverlay").classList.contains("show")) {
+            unlockScreen();
+          } else {
+            state.teacherMode = !state.teacherMode;
+            updateHeaderUI();
+          }
+          return;
+        }
+
+        // Silent Teacher Shortcut: Shift + F (skip to fresh problem)
+        if (e.shiftKey && e.key.toUpperCase() === "F") {
+          e.preventDefault();
+          if (state.activeTab !== "intro") {
+            switchTab(state.activeTab);
+          }
+          return;
+        }
+
+        // Calculator keyboard support when open
+        if (calcPopover.classList.contains("open")) {
+          if (/^[0-9]$/.test(e.key)) { e.preventDefault(); handleCalcKey(e.key); return; }
+          if (e.key === "," || e.key === ".") { e.preventDefault(); handleCalcKey(","); return; }
+          if (["+", "-", "*", "/"].includes(e.key)) { e.preventDefault(); handleCalcKey(e.key); return; }
+          if (e.key === "Backspace") { e.preventDefault(); handleCalcKey("BS"); return; }
+          if (e.key === "Escape") { calcPopover.classList.remove("open"); btnCalc.classList.remove("active"); return; }
+          if (e.key === "Enter") { e.preventDefault(); handleCalcKey("="); return; }
+        }
+
+        // Number hotkeys 1-2 in Phase 1 MCQ
+        if (state.activeTab === "p1" && !state.solved && state.problem && state.problem.mode === "mcq" && (e.key === "1" || e.key === "2")) {
+          const idx = Number(e.key) - 1;
+          if (state.problem.options[idx]) {
+            handlePhase1Answer(idx);
+          }
+          return;
+        }
+
+        // Enter key for submit or advancing step/question
+        if (e.key === "Enter") {
+          if (document.getElementById("lockOverlay").classList.contains("show")) return;
+          const nextStepBtn = document.getElementById("btnNextStep");
+          const nextBtn = document.getElementById("btnNextQ");
+          const nextP2b = document.getElementById("btnNextP2b");
+          const subBtn = document.getElementById("btnSubmit");
+          const subP2b = document.getElementById("btnSubmitP2b");
+
+          if (nextStepBtn && nextStepBtn.style.display !== "none") {
+            e.preventDefault();
+            nextStepBtn.click();
+          } else if (nextBtn && nextBtn.style.display !== "none") {
+            e.preventDefault();
+            nextBtn.click();
+          } else if (nextP2b && nextP2b.style.display !== "none") {
+            e.preventDefault();
+            nextP2b.click();
+          } else if (subBtn && !subBtn.disabled) {
+            e.preventDefault();
+            subBtn.click();
+          } else if (subP2b && !subP2b.disabled) {
+            e.preventDefault();
+            subP2b.click();
+          }
+        }
+      });
+
+      /* =========================================================
+         INITIALIZE APP
+      ========================================================= */
+      updateHeaderUI();
+      switchTab("intro");
+    })();
+  </script>
+</body>
+</html>
